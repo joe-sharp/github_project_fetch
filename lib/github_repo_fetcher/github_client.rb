@@ -3,11 +3,11 @@
 require 'octokit'
 require 'jwt'
 
-module GitHubRepoFetcher
+module GithubRepoFetcher
   # GitHubClient handles authentication and interaction with the GitHub API
   # It provides methods to fetch repository data and check API health status
   # Uses JWT authentication for GitHub App integration and implements caching
-  class GitHubClient
+  class GithubClient
     attr_reader :client
 
     def initialize
