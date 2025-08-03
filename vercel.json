@@ -1,17 +1,6 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.rb": {
-      "runtime": "ruby3.3"
-    }
-  },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.rb"
-    }
-  ],
   "env": {
-    "RACK_ENV": "production"
+    "NODE_ENV": "production"
   }
 }

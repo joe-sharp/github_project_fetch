@@ -1,6 +1,6 @@
 # 🪄 GitHub Repository Fetcher
 
-A Ruby Sinatra application that fetches public repositories from GitHub users using the GitHub API with JWT authentication.
+A Ruby serverless application that fetches public repositories from GitHub users using the GitHub API with JWT authentication, deployed on Vercel.
 
 ## ✨ Features
 
@@ -68,7 +68,7 @@ GITHUB_CLIENT_SECRET=your_client_secret_here
 VERCEL_URL=https://your-app-name.vercel.app
 
 # Development Configuration
-RACK_ENV=development
+NODE_ENV=development
 ```
 
 ### GitHub App Setup
@@ -87,19 +87,19 @@ RACK_ENV=development
 
 ### Health Check
 ```http
-GET /health
+GET /api/health
 ```
 Returns the health status of the GitHub API connection.
 
-### Repository Information
+### API Information
 ```http
-GET /
+GET /api
 ```
 Returns API information and available endpoints.
 
 ### Fetch User Repositories
 ```http
-GET /repositories/:username
+GET /api/repositories?username=:username
 ```
 Fetches all public repositories for a given GitHub username.
 
@@ -160,10 +160,12 @@ ruby bin/test_github_auth.rb
 
 ## 🏗️ Architecture
 
-- **`lib/github_repo_fetcher.rb`**: Main application entry point
-- **`lib/github_repo_fetcher/app.rb`**: Sinatra application with API endpoints
+- **`lib/github_repo_fetcher.rb`**: Main application entry point and library loader
 - **`lib/github_repo_fetcher/github_client.rb`**: GitHub API client with JWT authentication
-- **`api/index.rb`**: Vercel serverless function entry point
+- **`api/index.rb`**: Vercel serverless function entry point (`/api`)
+- **`api/health.rb`**: Health check endpoint (`/api/health`)
+- **`api/repositories.rb`**: Repository fetching endpoint (`/api/repositories`)
+- **`bin/`**: Utility scripts for testing and debugging
 - **`spec/`**: Comprehensive test suite with mocking
 
 ## 🔮 Next Steps
