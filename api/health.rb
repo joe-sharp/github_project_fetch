@@ -6,18 +6,18 @@ require_relative '../lib/github_repo_fetcher/api_response_service'
 
 # Vercel health check endpoint - accessible at /api/health
 Handler = proc do |request, response|
-  ApiResponseService.cors_headers(response)
+  GithubRepoFetcher::ApiResponseService.cors_headers(response)
 
   # Handle CORS preflight
-  next if ApiResponseService.cors_preflight?(request, response)
+  next if GithubRepoFetcher::ApiResponseService.cors_preflight?(request, response)
 
   begin
     health_service = GithubRepoFetcher::HealthService.new
     result = health_service.check_health
 
     status = result[:status] == 'healthy' ? 200 : 503
-    ApiResponseService.success_response(response, result, status)
+    GithubRepoFetcher::ApiResponseService.success_response(response, result, status)
   rescue StandardError => e
-    ApiResponseService.error_response(response, e.message, 503)
+    GithubRepoFetcher::ApiResponseService.error_response(response, e.message, 503)
   end
 end

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'github_client'
+
 module GithubRepoFetcher
   # ProjectService handles business logic for fetching and processing user projects
   class ProjectService
     def initialize(github_client = nil)
-      @github_client = github_client || GithubClient.new
+      @github_client = github_client || GithubRepoFetcher::GithubClient.new
     end
 
     def fetch_user_projects(username)

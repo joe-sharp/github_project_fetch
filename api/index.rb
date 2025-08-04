@@ -5,10 +5,10 @@ require_relative '../lib/github_repo_fetcher/api_response_service'
 
 # Vercel serverless function handler
 Handler = proc do |request, response|
-  ApiResponseService.cors_headers(response)
+  GithubRepoFetcher::ApiResponseService.cors_headers(response)
 
   # Handle CORS preflight
-  next if ApiResponseService.cors_preflight?(request, response)
+  next if GithubRepoFetcher::ApiResponseService.cors_preflight?(request, response)
 
   begin
     path = request['path'] || '/'
@@ -29,11 +29,11 @@ Handler = proc do |request, response|
           projects: '/api/projects?octocat'
         }
       }
-      ApiResponseService.success_response(response, data)
+      GithubRepoFetcher::ApiResponseService.success_response(response, data)
     else
-      ApiResponseService.not_found_response(response)
+      GithubRepoFetcher::ApiResponseService.not_found_response(response)
     end
   rescue StandardError => e
-    ApiResponseService.error_response(response, e.message)
+    GithubRepoFetcher::ApiResponseService.error_response(response, e.message)
   end
 end
