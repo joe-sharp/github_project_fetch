@@ -83,9 +83,16 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
+    rubyzip (2.4.1)
     sawyer (0.9.2)
       addressable (>= 2.3.5)
       faraday (>= 0.17.3, < 3)
+    selenium-webdriver (4.34.0)
+      base64 (~> 0.2)
+      logger (~> 1.4)
+      rexml (~> 3.2, >= 3.2.5)
+      rubyzip (>= 1.2.2, < 3.0)
+      websocket (~> 1.0)
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
@@ -94,6 +101,7 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
+    websocket (1.2.11)
 
 PLATFORMS
   aarch64-linux-gnu
@@ -118,6 +126,7 @@ DEPENDENCIES
   rubocop
   rubocop-performance
   rubocop-rspec
+  selenium-webdriver
   webmock
 
 RUBY VERSION

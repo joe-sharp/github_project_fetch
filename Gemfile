@@ -16,6 +16,7 @@ group :development, :test do
   gem 'rubocop'
   gem 'rubocop-performance'
   gem 'rubocop-rspec'
+  gem 'selenium-webdriver'
   gem 'webmock'
 end
 
