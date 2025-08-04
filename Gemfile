@@ -8,7 +8,7 @@ ruby '~> 3.3'
 gem 'dotenv', '~> 2.8'
 gem 'json', '~> 2.6'
 gem 'jwt', '~> 2.7'
-gem 'octokit', '~> 7.0'
+gem 'octokit', '~> 9.0'
 
 # Development and testing
 group :development, :test do

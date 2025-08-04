@@ -31,8 +31,8 @@ end
 # Test GitHub Client initialization and JWT token generation
 puts "\n2. GitHub Client Initialization Test:"
 begin
-  client = GitHubRepoFetcher::GitHubClient.new
-  puts '   ✅ GitHubClient initialized successfully'
+  client = GithubRepoFetcher::GithubClient.new
+  puts '   ✅ GithubClient initialized successfully'
 
   # Test health check to verify API connection
   health = client.health_check

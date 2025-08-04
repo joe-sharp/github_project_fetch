@@ -4,7 +4,7 @@ require 'octokit'
 require 'jwt'
 
 module GithubRepoFetcher
-  # GitHubClient handles authentication and interaction with the GitHub API
+  # GithubClient handles authentication and interaction with the GitHub API
   # It provides methods to fetch repository data and check API health status
   # Uses JWT authentication for GitHub App integration and implements caching
   class GithubClient
@@ -100,7 +100,6 @@ module GithubRepoFetcher
       installation_id = installation.id
       access_token = @client.create_app_installation_access_token(installation_id)
       create_installation_client(access_token.token)
-      log_installation_success
     end
 
     def create_installation_client(token)
@@ -109,10 +108,6 @@ module GithubRepoFetcher
         client_id: @client_id,
         client_secret: @client_secret
       )
-    end
-
-    def log_installation_success
-      puts '🔧 Using installation access token for repository access'
     end
 
     def log_no_installations

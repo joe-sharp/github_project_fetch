@@ -10,7 +10,7 @@ puts '======================================'
 begin
   # Test basic client initialization
   puts '1. Initializing GitHub client...'
-  client = GitHubRepoFetcher::GitHubClient.new
+  client = GithubRepoFetcher::GithubClient.new
   puts '   ✅ Client initialized successfully'
 
   # Test health check

@@ -21,7 +21,7 @@ Handler = proc do |request, response|
   end
 
   begin
-    github_client = GitHubRepoFetcher::GitHubClient.new
+    github_client = GithubRepoFetcher::GithubClient.new
     result = github_client.health_check
 
     response.status = result[:status] == 'healthy' ? 200 : 503

@@ -31,7 +31,7 @@ Handler = proc do |request, response|
         example: '/api/repositories?username=octocat'
       }.to_json
     else
-      github_client = GitHubRepoFetcher::GitHubClient.new
+      github_client = GithubRepoFetcher::GithubClient.new
       repositories = github_client.fetch_user_repositories(username)
 
       response.status = 200
