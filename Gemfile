@@ -5,10 +5,10 @@ source 'https://rubygems.org'
 ruby '~> 3.3'
 
 # Core dependencies
-gem 'dotenv', '~> 2.8'
+gem 'dotenv', '~> 3.1'
 gem 'json', '~> 2.6'
-gem 'jwt', '~> 2.7'
-gem 'octokit', '~> 9.0'
+gem 'jwt', '~> 3.1'
+gem 'octokit', '~> 10.0'
 
 # Development and testing
 group :development, :test do
