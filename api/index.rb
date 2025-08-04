@@ -25,16 +25,17 @@ Handler = proc do |request, response|
     when '/', '/api'
       response.status = 200
       response.body = {
-        name: 'GitHub Repository Fetcher',
+        name: 'GitHub Project Fetcher',
         version: '1.0.0',
-        description: 'API to fetch public repositories from GitHub users',
+        description: 'API to fetch public repositories and their language data for a given GitHub user. ' \
+                     '(Unrelated to GitHub Projects)',
         endpoints: {
           health: '/api/health',
-          repositories: '/api/repositories?username=:username'
+          projects: '/api/projects?username'
         },
         examples: {
           health: '/api/health',
-          repositories: '/api/repositories?username=octocat'
+          projects: '/api/projects?octocat'
         }
       }.to_json
     else

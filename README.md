@@ -45,9 +45,9 @@ A Ruby serverless application that fetches public repositories from GitHub users
    bundle exec rspec
    ```
 
-5. **Start the server**
+5. **Run the test suite**
    ```bash
-   ruby lib/github_repo_fetcher.rb
+   bundle exec rspec
    ```
 
 ## 🔧 Configuration
@@ -85,23 +85,23 @@ NODE_ENV=development
 
 ## 📡 API Endpoints
 
-### Health Check
-```http
-GET /api/health
-```
-Returns the health status of the GitHub API connection.
-
 ### API Information
 ```http
 GET /api
 ```
 Returns API information and available endpoints.
 
+### Health Check
+```http
+GET /api/health
+```
+Returns the health status of the GitHub API connection.
+
 ### Fetch User Repositories
 ```http
-GET /api/repositories?username=:username
+GET /api/repositories?username
 ```
-Fetches all public repositories for a given GitHub username.
+Fetches all public repositories and their language information for a given GitHub username.
 
 **Response Example:**
 ```json
@@ -135,7 +135,12 @@ bundle exec rspec
 
 Test GitHub App authentication:
 ```bash
-ruby bin/test_github_auth.rb
+ruby bin/test_github.rb
+```
+
+Debug GitHub authentication:
+```bash
+ruby bin/debug_github_auth.rb
 ```
 
 ## 🚀 Deployment
@@ -165,7 +170,9 @@ ruby bin/test_github_auth.rb
 - **`api/index.rb`**: Vercel serverless function entry point (`/api`)
 - **`api/health.rb`**: Health check endpoint (`/api/health`)
 - **`api/repositories.rb`**: Repository fetching endpoint (`/api/repositories`)
-- **`bin/`**: Utility scripts for testing and debugging
+- **`bin/test_github.rb`**: Test GitHub App authentication
+- **`bin/debug_github_auth.rb`**: Debug authentication issues
+- **`bin/deploy.sh`**: Deployment script for Vercel
 - **`spec/`**: Comprehensive test suite with mocking
 
 ## 🔮 Next Steps
@@ -175,6 +182,7 @@ ruby bin/test_github_auth.rb
 - [ ] Add rate limiting and request throttling
 - [ ] Create a web interface for repository browsing
 - [ ] Add support for private repositories (with user authentication)
+- [ ] Add pagination support for users with many repositories
 
 ## 📄 License
 

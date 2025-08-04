@@ -76,7 +76,7 @@ MOCK_KEY_FOR_TESTING
     end
   end
 
-  describe '#fetch_user_repositories' do
+  describe '#fetch_user_projects' do
     let(:client) { described_class.new }
 
     before do
@@ -86,21 +86,21 @@ MOCK_KEY_FOR_TESTING
       stub_installation_access_token_request
     end
 
-    it 'returns an array of repositories' do
+    it 'returns an array of projects' do
       stub_repositories_request
       stub_languages_request
 
-      repos = client.fetch_user_repositories('testuser')
-      expect(repos).to be_an(Array)
+      projects = client.fetch_user_projects('testuser')
+      expect(projects).to be_an(Array)
     end
 
-    it 'includes repository metadata' do
+    it 'includes project metadata' do
       stub_repositories_request
       stub_languages_request
 
-      repos = client.fetch_user_repositories('testuser')
-      repo = repos.first
-      expect(repo).to include(:name, :description, :languages, :forks_count, :stargazers_count)
+      projects = client.fetch_user_projects('testuser')
+      project = projects.first
+      expect(project).to include(:name, :description, :languages, :forks_count, :stargazers_count)
     end
 
     context 'when user is not found' do
@@ -109,7 +109,7 @@ MOCK_KEY_FOR_TESTING
       end
 
       it 'raises an appropriate error' do
-        expect { client.fetch_user_repositories('nonexistent') }.to raise_error("User 'nonexistent' not found")
+        expect { client.fetch_user_projects('nonexistent') }.to raise_error("User 'nonexistent' not found")
       end
     end
 
@@ -120,7 +120,7 @@ MOCK_KEY_FOR_TESTING
 
       it 'raises an appropriate error' do
         expect do
-          client.fetch_user_repositories('testuser')
+          client.fetch_user_projects('testuser')
         end.to raise_error(
           'GitHub API error: GET https://api.github.com/users/testuser/repos?per_page=100: ' \
           '429 - API rate limit exceeded'

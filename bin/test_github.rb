@@ -19,11 +19,11 @@ begin
   puts "   ✅ Health check: #{health_result[:status]}"
   puts '   📊 Rate limit info available'
 
-  # Test fetching repositories for a known user
-  puts '3. Testing repository fetch...'
+  # Test fetching projects for a known user
+  puts '3. Testing project fetch...'
   test_username = 'octocat' # GitHub's test user
-  repos = client.fetch_user_repositories(test_username)
-  puts "   ✅ Successfully fetched #{repos.length} repositories for #{test_username}"
+  projects = client.fetch_user_projects(test_username)
+  puts "   ✅ Successfully fetched #{projects.length} projects for #{test_username}"
 
   # Show first repo as example
   if repos.any?

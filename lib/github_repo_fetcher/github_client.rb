@@ -22,13 +22,13 @@ module GithubRepoFetcher
       setup_client
     end
 
-    def fetch_user_repositories(username) # rubocop:disable Metrics/MethodLength
-      cache_key = "repos_#{username}"
+    def fetch_user_projects(username) # rubocop:disable Metrics/MethodLength
+      cache_key = "projects_#{username}"
       return @cache[cache_key][:data] if cache_valid?(cache_key)
 
-      repositories = fetch_and_transform_repositories(username)
-      cache_repositories(cache_key, repositories)
-      repositories
+      projects = fetch_and_transform_projects(username)
+      cache_projects(cache_key, projects)
+      projects
     rescue Octokit::NotFound
       raise "User '#{username}' not found"
     rescue Octokit::TooManyRequests
@@ -111,7 +111,7 @@ module GithubRepoFetcher
     end
 
     def log_no_installations
-      warn '⚠️  No installations found. Install the app to access repositories.'
+      warn '⚠️  No installations found. Install the app to access projects.'
     end
 
     def log_installation_error(message)
@@ -166,13 +166,13 @@ module GithubRepoFetcher
       (Time.now - @cache[key][:timestamp]) < @cache_ttl
     end
 
-    def fetch_and_transform_repositories(username)
+    def fetch_and_transform_projects(username)
       client.repos(username, per_page: 100).map do |repo|
-        transform_repository_data(repo)
+        transform_project_data(repo)
       end
     end
 
-    def transform_repository_data(repo)
+    def transform_project_data(repo)
       {
         name: repo.name,
         description: repo.description,
@@ -185,9 +185,9 @@ module GithubRepoFetcher
       }
     end
 
-    def cache_repositories(cache_key, repositories)
+    def cache_projects(cache_key, projects)
       @cache[cache_key] = {
-        data: repositories,
+        data: projects,
         timestamp: Time.now
       }
     end

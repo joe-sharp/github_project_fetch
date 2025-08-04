@@ -51,10 +51,10 @@ begin
     puts '   Testing repository access...'
     # Try to fetch a public repository to test access
     test_username = 'octocat' # GitHub's test user
-    repos = client.fetch_user_repositories(test_username)
-    puts '   ✅ Repository access successful'
-    puts "      Found #{repos.length} repositories for #{test_username}"
-    puts "      Sample repo: #{repos.first[:name]}" if repos.any?
+    projects = client.fetch_user_projects(test_username)
+    puts '   ✅ Project access successful'
+    puts "      Found #{projects.length} projects for #{test_username}"
+    puts "      Sample project: #{projects.first[:name]}" if projects.any?
   else
     puts '   ❌ Cannot test repository access - client initialization failed'
   end
