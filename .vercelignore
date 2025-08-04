@@ -1,0 +1,50 @@
+# Test files
+spec/
+test/
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Environment files
+.env
+.env.local
+.env.example
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+.cursor/
+.ruby-lsp/
+
+# Development tools
+.tool-versions
+.rubocop.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Coverage reports
+coverage/
+
+# Bin scripts (development utilities)
+bin/
+
+# Vercel deployment files
+.vercel/
+
+# License (not needed for deployment)
+LICENSE
