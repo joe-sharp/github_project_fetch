@@ -1,30 +1,21 @@
 # frozen_string_literal: true
 
 require 'json'
+require_relative '../lib/github_repo_fetcher/api_response_service'
 
 # Vercel serverless function handler
 Handler = proc do |request, response|
-  method = request['method'] || 'GET'
-  path = request['path'] || '/'
-
-  # Set CORS headers
-  response['Access-Control-Allow-Origin'] = '*'
-  response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-  response['Access-Control-Allow-Headers'] = 'Content-Type'
-  response['Content-Type'] = 'application/json'
+  ApiResponseService.cors_headers(response)
 
   # Handle CORS preflight
-  if method == 'OPTIONS'
-    response.status = 200
-    response.body = ''
-    next
-  end
+  next if ApiResponseService.cors_preflight?(request, response)
 
   begin
+    path = request['path'] || '/'
+
     case path
     when '/', '/api'
-      response.status = 200
-      response.body = {
+      data = {
         name: 'GitHub Project Fetcher',
         version: '1.0.0',
         description: 'API to fetch public repositories and their language data for a given GitHub user. ' \
@@ -37,13 +28,12 @@ Handler = proc do |request, response|
           health: '/api/health',
           projects: '/api/projects?octocat'
         }
-      }.to_json
+      }
+      ApiResponseService.success_response(response, data)
     else
-      response.status = 404
-      response.body = { error: 'Endpoint not found' }.to_json
+      ApiResponseService.not_found_response(response)
     end
   rescue StandardError => e
-    response.status = 500
-    response.body = { error: e.message }.to_json
+    ApiResponseService.error_response(response, e.message)
   end
 end

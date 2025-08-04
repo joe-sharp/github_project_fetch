@@ -68,6 +68,8 @@ Performance/RedundantMerge:
   MaxKeyValuePairs: 1
 
 RSpec/ExampleLength:
+  Exclude:
+    - 'spec/github_repo_fetcher/api_response_service_spec.rb'
   CountAsOne:
     - array
     - hash
