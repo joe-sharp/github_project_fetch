@@ -54,22 +54,13 @@ A Ruby serverless application that fetches public repositories along with their 
 
 ### Environment Variables
 
-Create a `.env` file with the following variables:
+Copy the example environment file and update it with your values:
 
-```env
-# GitHub App Configuration
-GITHUB_APP_ID=your_app_id_here
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nYour private key content here\n-----END RSA PRIVATE KEY-----"
-GITHUB_WEBHOOK_SECRET=your_webhook_secret_here
-GITHUB_CLIENT_ID=Iv23li8mXIuQ2n1WXDLf
-GITHUB_CLIENT_SECRET=your_client_secret_here
-
-# Vercel Configuration
-VERCEL_URL=https://your-app-name.vercel.app
-
-# Development Configuration
-NODE_ENV=development
+```bash
+cp .env.example .env
 ```
+
+Then edit `.env` and replace the placeholder values with your actual GitHub App configuration.
 
 ### GitHub App Setup
 
@@ -107,23 +98,22 @@ Fetches all public repositories and their language information for a given GitHu
 ```json
 {
   "username": "octocat",
-  "projects_count": 2,
+  "projects_count": 8,
   "projects": [
     {
-      "name": "Hello-World",
-      "description": "My first repository on GitHub!",
+      "name": "linguist",
+      "description": "Language Savant. If your repository's language is being reported incorrectly, send us a pull request!",
       "languages": {
-        "Ruby": 1000,
-        "JavaScript": 500
+        "Ruby": 204865,
+        "Shell": 910
       },
-      "forks_count": 5,
-      "stargazers_count": 10,
-      "html_url": "https://github.com/octocat/Hello-World",
-      "created_at": "2023-01-01T00:00:00Z",
-      "updated_at": "2023-12-01T00:00:00Z"
+      "forks_count": 219,
+      "stargazers_count": 576,
+      "html_url": "https://github.com/octocat/linguist",
+      "created_at": "2016-08-02 17:35:14 UTC",
+      "updated_at": "2025-08-03 07:36:00 UTC"
     }
-  ]
-}
+   ...
 ```
 
 ## 🧪 Testing
@@ -135,17 +125,17 @@ bundle exec rspec
 
 Test GitHub App authentication:
 ```bash
-ruby bin/test_github.rb
+bin/test_github.rb
 ```
 
 Debug GitHub authentication:
 ```bash
-ruby bin/debug_github_auth.rb
+bin/debug_github_auth.rb
 ```
 
 ## 🚀 Deployment
 
-### Vercel Deployment
+### Preview Vercel Deployment
 
 1. **Install Vercel CLI**
    ```bash
@@ -165,24 +155,29 @@ ruby bin/debug_github_auth.rb
 
 ## 🏗️ Architecture
 
-- **`lib/github_repo_fetcher.rb`**: Main application entry point and library loader
-- **`lib/github_repo_fetcher/github_client.rb`**: GitHub API client with JWT authentication
-- **`api/index.rb`**: Vercel serverless function entry point (`/api`)
-- **`api/health.rb`**: Health check endpoint (`/api/health`)
-- **`api/projects.rb`**: Projects (repositories) fetching endpoint (`/api/projects`)
-- **`bin/test_github.rb`**: Test GitHub App authentication
-- **`bin/debug_github_auth.rb`**: Debug authentication issues
-- **`bin/deploy.sh`**: Deployment script for Vercel
-- **`spec/`**: Comprehensive test suite with mocking
+### Core Library (`lib/`)
+- **`github_repo_fetcher.rb`**: Main application entry point and library loader
+- **`github_repo_fetcher/github_client.rb`**: GitHub API client with JWT authentication
+- **`github_repo_fetcher/project_service.rb`**: Service for fetching and processing repository data
+- **`github_repo_fetcher/health_service.rb`**: Health check service
+- **`github_repo_fetcher/api_response_service.rb`**: Response formatting and API response handling
+
+### API Endpoints (`api/`)
+- **`index.rb`**: Vercel serverless function entry point (`/api`)
+- **`health.rb`**: Health check endpoint (`/api/health`)
+- **`projects.rb`**: Projects (repositories) fetching endpoint (`/api/projects`)
+
+### Utilities (`bin/`)
+- **`test_github.rb`**: Test GitHub App authentication
+- **`debug_github_auth.rb`**: Debug authentication issues
+
+### Testing (`spec/`)
+- **`github_repo_fetcher/`**: Comprehensive test suite for all services
+- **`spec_helper.rb`**: Test configuration and setup
 
 ## 🔮 Next Steps
 
 - [ ] Add webhook support for real-time updates
-- [ ] Implement caching for better performance
-- [ ] Add rate limiting and request throttling
-- [ ] Create a web interface for repository browsing
-- [ ] Add support for private repositories (with user authentication)
-- [ ] Add pagination support for users with many repositories
 
 ## 📄 License
 
