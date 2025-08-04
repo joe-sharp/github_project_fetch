@@ -37,24 +37,10 @@ module GithubRepoFetcher
       raise "GitHub API error: #{e.message}"
     end
 
-    def health_check
-      rate_limit_info = client.rate_limit
-      remaining = rate_limit_info.remaining
-      limit = rate_limit_info.limit
-      reset_time = Time.at(rate_limit_info.resets_at)
-
-      {
-        status: 'healthy',
-        message: 'GitHub API connection successful',
-        rate_limit: {
-          remaining: remaining,
-          limit: limit,
-          reset_time: reset_time.iso8601,
-          used_percentage: ((limit - remaining).to_f / limit * 100).round(2)
-        }
-      }
+    def rate_limit
+      client.rate_limit
     rescue Octokit::Error => e
-      { status: 'unhealthy', message: "GitHub API error: #{e.message}" }
+      raise "GitHub API error: #{e.message}"
     end
 
     private
@@ -85,15 +71,15 @@ module GithubRepoFetcher
 
     def setup_installation_client
       installations = @client.find_app_installations
-      return log_no_installations unless installations.any?
+      return log_error('No installations found. Install the app to access projects.') unless installations.any?
 
       setup_client_with_installation(installations.first)
     rescue Octokit::Unauthorized => e
-      log_installation_error("Authentication failed during installation setup: #{e.message}")
+      log_error("Authentication failed during installation setup: #{e.message}")
     rescue Octokit::Error => e
-      log_installation_error("Could not set up installation client: #{e.message}")
+      log_error("Could not set up installation client: #{e.message}")
     rescue StandardError => e
-      log_installation_error("Unexpected error during installation setup: #{e.message}")
+      log_error("Unexpected error during installation setup: #{e.message}")
     end
 
     def setup_client_with_installation(installation)
@@ -110,11 +96,7 @@ module GithubRepoFetcher
       )
     end
 
-    def log_no_installations
-      warn '⚠️  No installations found. Install the app to access projects.'
-    end
-
-    def log_installation_error(message)
+    def log_error(message)
       warn "⚠️  #{message}"
       # Continue with JWT client for basic app operations
     end

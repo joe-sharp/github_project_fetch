@@ -2,10 +2,6 @@
 
 require 'rspec'
 require 'webmock/rspec'
-require 'dotenv'
-
-# Load environment variables
-Dotenv.load('.env.test', '.env')
 
 # Configure WebMock to block all external HTTP requests
 WebMock.disable_net_connect!(allow_localhost: true)

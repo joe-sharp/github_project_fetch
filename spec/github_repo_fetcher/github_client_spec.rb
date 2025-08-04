@@ -43,7 +43,7 @@ MOCK_KEY_FOR_TESTING
     end
   end
 
-  describe '#health_check' do
+  describe '#rate_limit' do
     let(:client) { described_class.new }
 
     before do
@@ -54,14 +54,11 @@ MOCK_KEY_FOR_TESTING
       stub_rate_limit_request
     end
 
-    it 'returns healthy status' do
-      result = client.health_check
-      expect(result[:status]).to eq('healthy')
-    end
-
-    it 'includes rate limit information' do
-      result = client.health_check
-      expect(result[:rate_limit]).to include(:remaining, :limit, :reset_time, :used_percentage)
+    it 'returns rate limit information', :aggregate_failures do
+      result = client.rate_limit
+      expect(result).to respond_to(:remaining)
+      expect(result).to respond_to(:limit)
+      expect(result).to respond_to(:resets_at)
     end
 
     context 'when API is not accessible' do
@@ -69,9 +66,8 @@ MOCK_KEY_FOR_TESTING
         stub_rate_limit_error
       end
 
-      it 'returns unhealthy status' do
-        result = client.health_check
-        expect(result[:status]).to eq('unhealthy')
+      it 'raises an error' do
+        expect { client.rate_limit }.to raise_error(/GitHub API error/)
       end
     end
   end
