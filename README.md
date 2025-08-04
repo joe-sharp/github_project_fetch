@@ -1,6 +1,6 @@
-# 🪄 GitHub Repository Fetcher
+# 🪄 GitHub Project Fetch
 
-A Ruby serverless application that fetches public repositories from GitHub users using the GitHub API with JWT authentication, deployed on Vercel.
+A Ruby serverless application that fetches public repositories along with their language data from GitHub users, deployed on Vercel.
 
 ## ✨ Features
 
@@ -18,7 +18,7 @@ A Ruby serverless application that fetches public repositories from GitHub users
 
 ### Prerequisites
 
-- Ruby 3.4.5+
+- Ruby 3.3+
 - GitHub App with "Read repository data" permissions
 
 ### Installation
@@ -97,9 +97,9 @@ GET /api/health
 ```
 Returns the health status of the GitHub API connection.
 
-### Fetch User Repositories
+### Fetch User Repositories (with extra language information)
 ```http
-GET /api/repositories?username
+GET /api/projects?username
 ```
 Fetches all public repositories and their language information for a given GitHub username.
 
@@ -107,8 +107,8 @@ Fetches all public repositories and their language information for a given GitHu
 ```json
 {
   "username": "octocat",
-  "repositories_count": 2,
-  "repositories": [
+  "projects_count": 2,
+  "projects": [
     {
       "name": "Hello-World",
       "description": "My first repository on GitHub!",
@@ -169,7 +169,7 @@ ruby bin/debug_github_auth.rb
 - **`lib/github_repo_fetcher/github_client.rb`**: GitHub API client with JWT authentication
 - **`api/index.rb`**: Vercel serverless function entry point (`/api`)
 - **`api/health.rb`**: Health check endpoint (`/api/health`)
-- **`api/repositories.rb`**: Repository fetching endpoint (`/api/repositories`)
+- **`api/projects.rb`**: Projects (repositories) fetching endpoint (`/api/projects`)
 - **`bin/test_github.rb`**: Test GitHub App authentication
 - **`bin/debug_github_auth.rb`**: Debug authentication issues
 - **`bin/deploy.sh`**: Deployment script for Vercel
