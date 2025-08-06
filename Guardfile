@@ -2,7 +2,7 @@
 
 # More info at https://github.com/guard/guard#readme
 
-guard :rubocop, cli: '--format progress --out tmp/rubocop_status.txt ',
+guard :rubocop, cli: '--format progress --out tmp/rubocop_status.txt',
                 all_on_start: true, all_after_pass: true do
   watch(/.+\.rb$/)
   watch(/bin/)
