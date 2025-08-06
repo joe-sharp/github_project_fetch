@@ -123,6 +123,39 @@ Run the test suite:
 bundle exec rspec
 ```
 
+### Automated Testing with Guard
+
+Guard provides automated testing and code quality checks that run whenever you change files:
+
+```bash
+# Start Guard (runs tests and RuboCop automatically on file changes)
+bundle exec guard
+
+# Start Guard without initial run
+bundle exec guard --no-interactions
+```
+
+Guard will automatically:
+- Run RuboCop when Ruby files change
+- Run RSpec tests when code or spec files change
+- Output results to `tmp/rubocop_status.txt` and `tmp/rspec_status.txt`
+- Display a status summary showing current test and code quality status
+
+### Status Summary
+
+Get a quick overview of your project's health:
+
+```bash
+# Run status summary (shows RuboCop and RSpec results)
+bin/status_summary
+```
+
+The status summary displays:
+- ✅ RuboCop: Clean code style or ⚠️ with offense count
+- ✅ Tests: All passing or ❌ with failure count
+
+### Manual Testing
+
 Test GitHub App authentication:
 ```bash
 bin/test_github.rb
@@ -131,6 +164,11 @@ bin/test_github.rb
 Debug GitHub authentication:
 ```bash
 bin/debug_github_auth.rb
+```
+
+E2E Test:
+```bash
+bin/test_api.rb
 ```
 
 ## 🚀 Deployment

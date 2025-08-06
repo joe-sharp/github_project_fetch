@@ -21,6 +21,10 @@ group :development, :test do
 end
 
 group :development do
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'guard-rubocop'
+  gem 'guard-shell'
   gem 'pry'
   gem 'pry-byebug'
 end

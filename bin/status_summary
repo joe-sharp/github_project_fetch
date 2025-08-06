@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+QUIET = ENV.fetch('QUIET', false)
+
+# Read status files with defaults
+rubocop_status = File.exist?('tmp/rubocop_status.txt') ? File.read('tmp/rubocop_status.txt') : ''
+rspec_status = File.exist?('tmp/rspec_status.txt') ? File.read('tmp/rspec_status.txt') : ''
+
+# Extract RuboCop offense count
+rubocop_offenses = 0
+if rubocop_status.downcase.include?('no offenses detected')
+  rubo = '✅'
+else
+  rubo = '⚠️ '
+  # Extract number of offenses from RuboCop output
+  offense_match = rubocop_status.match(/(\d+) offense/)
+  rubocop_offenses = offense_match ? offense_match[1].to_i : 0
+end
+
+# Extract test failure count
+test_failures = 0
+rspec_failure_line = rspec_status.lines.grep(/failure/i).last.to_s.strip
+if rspec_failure_line.downcase.include?(', 0 failures')
+  test = '✅'
+else
+  test = '❌ '
+  # Extract number of failures from RSpec output
+  failure_match = rspec_failure_line.match(/(\d+) failure/)
+  test_failures = failure_match ? failure_match[1].to_i : 0
+end
+
+# Display counts only when there are issues
+rubo_display = rubocop_offenses.positive? ? "#{rubo}(#{rubocop_offenses})" : rubo
+test_display = test_failures.positive? ? "#{test}(#{test_failures})" : test
+
+puts "\n🪄\e[35mGitHub Project Fetch Status:\e[0m  RuboCop: #{rubo_display} | Tests: #{test_display}"
