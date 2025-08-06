@@ -166,6 +166,11 @@ Debug GitHub authentication:
 bin/debug_github_auth.rb
 ```
 
+E2E Test:
+```bash
+bin/test_api.rb
+```
+
 ## 🚀 Deployment
 
 ### Preview Vercel Deployment
