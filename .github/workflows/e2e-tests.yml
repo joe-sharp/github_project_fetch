@@ -1,0 +1,55 @@
+name: E2E Tests
+
+on:
+  repository_dispatch:
+    types:
+      - 'vercel.deployment.success'
+
+jobs:
+  test-preview:
+    if: github.event.client_payload.environment == 'preview'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.git.sha }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Test Preview API
+        run: |
+          bin/test_api.rb ${{ github.event.client_payload.url }}
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
+  test-production:
+    if: github.event.client_payload.environment == 'production'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.git.sha }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Test Production API
+        run: |
+          bin/test_api.rb
