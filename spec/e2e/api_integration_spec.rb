@@ -24,7 +24,7 @@ class UriBuilder
   def initialize(base_url)
     @base_url = base_url
     @bypass_secret = ENV.fetch('VERCEL_AUTOMATION_BYPASS_SECRET', nil)
-    @bypass_secret = false if base_url.match?(%r{^https://github-project-fetch.vercel.app})
+    @bypass_secret = nil if base_url.match?(%r{^https://github-project-fetch.vercel.app})
   end
 
   def build(endpoint, username = nil)
@@ -110,7 +110,8 @@ class WebDriverManager
 
   def fetch_page(uri)
     @driver.get(uri.to_s)
-    sleep(2) # Wait for page to load
+    wait = Selenium::WebDriver::Wait.new(timeout: 2)
+    wait.until { @driver.find_element(:tag_name, 'pre') }
     @driver.page_source
   end
 
