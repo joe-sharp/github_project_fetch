@@ -10,7 +10,19 @@ jobs:
     if: github.event_name == 'repository_dispatch' && github.event.client_payload.environment == 'preview'
     runs-on: ubuntu-latest
 
+    permissions:
+      actions: read
+      statuses: write
+
     steps:
+      - name: Vercel Repository Dispatch Debug
+        uses: vercel/repository-dispatch/actions/debug@v1
+
+      - name: With Commit Status
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -36,11 +48,19 @@ jobs:
     if: github.event_name == 'repository_dispatch' && github.event.client_payload.environment == 'production'
     runs-on: ubuntu-latest
 
+    permissions:
+      actions: read
+      statuses: write
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Vercel Repository Dispatch Debug
+        uses: vercel/repository-dispatch/actions/debug@v1
+
+      - name: With Commit Status
+        uses: vercel/repository-dispatch/actions/status@v1
         with:
-          ref: ${{ github.event.client_payload.git.sha }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
