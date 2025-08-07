@@ -28,6 +28,7 @@ jobs:
   deploy-preview:
     needs: checks
     runs-on: ubuntu-latest
+    environment: preview
     steps:
       - uses: actions/checkout@v4
       - name: Install Vercel CLI

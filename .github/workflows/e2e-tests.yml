@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-preview:
-    if: github.event.client_payload.environment == 'preview'
+    if: github.event.client_payload.environment == 'preview' && github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -32,7 +32,7 @@ jobs:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
   test-production:
-    if: github.event.client_payload.environment == 'production'
+    if: github.event.client_payload.environment == 'production' && github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
 
     steps:
