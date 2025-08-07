@@ -26,10 +26,22 @@ jobs:
         uses: browser-actions/setup-chrome@v1
 
       - name: Test Preview API
+        id: test
         run: |
           bin/test_api.rb ${{ github.event.client_payload.url }}
         env:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
+      - name: Check Test Status
+        if: always()
+        run: |
+          if [ "${{ steps.test.outcome }}" == "success" ]; then
+            echo "✅ E2E tests passed for preview environment"
+            exit 0
+          else
+            echo "❌ E2E tests failed for preview environment"
+            exit 1
+          fi
 
   test-production:
     if: github.event_name == 'repository_dispatch' && github.event.client_payload.environment == 'production'
@@ -51,5 +63,19 @@ jobs:
         uses: browser-actions/setup-chrome@v1
 
       - name: Test Production API
+        id: test
         run: |
           bin/test_api.rb
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
+      - name: Check Test Status
+        if: always()
+        run: |
+          if [ "${{ steps.test.outcome }}" == "success" ]; then
+            echo "✅ E2E tests passed for production environment"
+            exit 0
+          else
+            echo "❌ E2E tests failed for production environment"
+            exit 1
+          fi
