@@ -34,4 +34,4 @@ end
 rubo_display = rubocop_offenses.positive? ? "#{rubo}(#{rubocop_offenses})" : rubo
 test_display = test_failures.positive? ? "#{test}(#{test_failures})" : test
 
-puts "\n🪄\e[35mGitHub Project Fetch Status:\e[0m  RuboCop: #{rubo_display} | Tests: #{test_display}"
+puts "\n🔮\e[35mGitHub Project Fetch Status:\e[0m  RuboCop: #{rubo_display} | Tests: #{test_display}"
