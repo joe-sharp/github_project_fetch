@@ -7,4 +7,4 @@ require 'bundler/setup'
 # Run only the e2e tests
 URL = ARGV.first
 VERCEL_URL = URL ? "VERCEL_URL=#{URL}" : ''
-system("#{VERCEL_URL} RUN_E2E=true bundle exec rspec --tag e2e")
+system("#{VERCEL_URL} RUN_E2E=true bundle exec rspec --tag e2e") ? exit(0) : exit(1)
