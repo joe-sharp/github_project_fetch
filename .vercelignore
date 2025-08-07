@@ -4,7 +4,6 @@ test/
 
 # Documentation
 *.md
-!README.md
 docs/
 
 # Environment files
@@ -16,6 +15,9 @@ docs/
 .git/
 .gitignore
 
+# GitHub workflows (not needed for deployment)
+.github/
+
 # IDE files
 .vscode/
 .idea/
@@ -25,6 +27,7 @@ docs/
 # Development tools
 .tool-versions
 .rubocop.yml
+Guardfile
 
 # OS files
 .DS_Store
