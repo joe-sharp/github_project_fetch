@@ -7,10 +7,8 @@
 # and external dependencies (Selenium WebDriver, live API calls).
 #
 # To run these tests specifically:
-#   RUN_E2E=true bundle exec rspec spec/e2e/
-#   RUN_E2E=true bundle exec rspec --tag e2e
-#   VERCEL_URL=<preview deployment URL> RUN_E2E=true bundle exec rspec spec/e2e/
-#   VERCEL_URL=<preview deployment URL> RUN_E2E=true bundle exec rspec --tag e2e
+#   bin/test_api.rb
+#   bin/test_api.rb <preview deployment URL>
 #
 # To run all tests including e2e:
 #   RUN_E2E=true bundle exec rspec
