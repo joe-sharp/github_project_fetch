@@ -100,8 +100,8 @@ See [`docs/vercel-setup.md`](./vercel-setup.md) for detailed instructions.
 - **Deployment failures**: Verify Vercel secrets are correct
 - **E2E test failures**: Check if the deployed URL is accessible and API is responding
 - **Duplicate deployments**: Make sure Vercel auto-deployments are disabled
-- **Ruby version issues**: Vercel deployment jobs are disabled due to Ruby compatibility support issues
+- **Ruby version issues**: Vercel deployment jobs are disabled due to Ruby support issues
 
 ## 🚧 Current Limitations
 
-- Vercel deployment jobs are temporarily disabled due to Ruby version compatibility issues
+- Vercel deployment jobs are temporarily disabled due to Ruby support issues
