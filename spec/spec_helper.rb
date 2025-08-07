@@ -26,6 +26,9 @@ RSpec.configure do |config|
 
   config.default_formatter = 'doc'
 
+  # Exclude e2e tests by default - they're slow and require external dependencies
+  config.filter_run_excluding :e2e unless ENV['RUN_E2E']
+
   config.order = :random
   Kernel.srand config.seed
 end
