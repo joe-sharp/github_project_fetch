@@ -17,7 +17,7 @@ Handler = proc do |request, response|
 
     status = result[:status] == 'healthy' ? 200 : 503
 
-    # Cache health status for 10 seconds with 1 minutes stale-while-revalidate
+    # Cache health status for 10 seconds with 1 minute stale-while-revalidate
     # Health checks should be fresh but can tolerate some staleness
     GithubRepoFetcher::ApiResponseService.cached_success_response(
       response,
