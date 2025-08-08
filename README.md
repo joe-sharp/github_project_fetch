@@ -22,7 +22,7 @@ A Ruby serverless application that fetches public repositories along with their 
 ## 📡 API Endpoints
 
 ### Fetch User Repositories
-```http
+```bash
 curl https://github-project-fetch.vercel.app/api/projects?username=octocat
 ```
 Fetches all public repositories and their language information for a given GitHub username. Example: `octocat`
@@ -52,13 +52,13 @@ Fetches all public repositories and their language information for a given GitHu
 ### Utility Endpoints
 
 #### API Information
-```http
+```bash
 curl https://github-project-fetch.vercel.app/api
 ```
 Returns API information and available endpoints.
 
 #### Health Check
-```http
+```bash
 curl https://github-project-fetch.vercel.app/api/health
 ```
 Returns the health status of the GitHub API connection.
