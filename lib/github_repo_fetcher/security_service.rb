@@ -110,7 +110,8 @@ module GithubRepoFetcher
     end
 
     def validate_username_characters(username)
-      return unless username.match?(/[<>'"\\;{}()\[\]|&$`]/)
+      unsafe_characters = /[<>'"\\;{}()\[\]|&$`]/
+      return unless username.match?(unsafe_characters)
 
       raise ArgumentError, 'Username contains potentially malicious characters'
     end
