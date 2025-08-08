@@ -23,7 +23,7 @@ A Ruby serverless application that fetches public repositories along with their 
 
 ### Fetch User Repositories
 ```http
-curl https://github-project-fetch.vercel.app/api/projects?octocat
+curl https://github-project-fetch.vercel.app/api/projects?username=octocat
 ```
 Fetches all public repositories and their language information for a given GitHub username. Example: `octocat`
 

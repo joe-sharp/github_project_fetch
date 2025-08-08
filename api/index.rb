@@ -26,7 +26,7 @@ Handler = proc do |request, response|
         },
         examples: {
           health: '/api/health',
-          projects: '/api/projects?octocat'
+          projects: '/api/projects?username=octocat'
         }
       }
 
