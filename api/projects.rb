@@ -3,6 +3,7 @@
 require 'json'
 require_relative '../lib/github_repo_fetcher/project_service'
 require_relative '../lib/github_repo_fetcher/api_response_service'
+require_relative '../lib/github_repo_fetcher/security_service'
 
 # Vercel projects endpoint
 Handler = proc do |request, response|
@@ -15,6 +16,9 @@ Handler = proc do |request, response|
     # Get username from query parameters
     query_params = request.query || {}
     username = query_params['username']
+
+    # Validate request and enforce security policies
+    GithubRepoFetcher::SecurityService.validate_request(request, username)
 
     project_service = GithubRepoFetcher::ProjectService.new
     result = project_service.fetch_user_projects(username)
