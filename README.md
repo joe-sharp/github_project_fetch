@@ -17,8 +17,7 @@ A Ruby serverless application that fetches public repositories along with their 
 - **RESTful API**: Clean JSON endpoints for easy integration
 - **Error Handling**: Comprehensive error handling for API limits and failures
 - **Vercel Ready**: Configured for serverless deployment on Vercel
-- **Edge Caching**: Optimized response caching with
-stale-while-revalidate
+- **Edge Caching**: Optimized response caching using `stale-while-revalidate` for fast, up-to-date responses
 
 ## 📡 API Endpoints
 
