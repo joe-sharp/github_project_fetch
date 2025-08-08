@@ -14,7 +14,7 @@ Handler = proc do |request, response|
   begin
     # Get username from query parameters
     query_params = request.query || {}
-    username = query_params.keys.first
+    username = query_params['username']
 
     project_service = GithubRepoFetcher::ProjectService.new
     result = project_service.fetch_user_projects(username)
