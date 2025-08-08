@@ -19,7 +19,14 @@ Handler = proc do |request, response|
     project_service = GithubRepoFetcher::ProjectService.new
     result = project_service.fetch_user_projects(username)
 
-    GithubRepoFetcher::ApiResponseService.success_response(response, result)
+    # Cache GitHub data for 10 minutes with 20 minutes stale-while-revalidate
+    # This balances freshness with performance for public repository data
+    GithubRepoFetcher::ApiResponseService.cached_success_response(
+      response,
+      result,
+      600, # 10 minutes cache
+      1200 # 20 minutes stale-while-revalidate
+    )
   rescue ArgumentError => e
     GithubRepoFetcher::ApiResponseService.bad_request_response(response, e.message)
   rescue StandardError => e
