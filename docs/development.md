@@ -18,9 +18,9 @@ Then edit `.env` and replace the placeholder values with your actual GitHub App 
 2. Create a new app with:
    - **App name**: Repository Fetcher (or your preferred name)
    - **Homepage URL**: Your Vercel deployment URL
-   - **Callback URL**: `https://your-vercel-url.vercel.app/auth/callback`
-   - **Webhook URL**: `https://your-vercel-url.vercel.app/webhook`
-   - **Permissions**: Repository access (Read)
+   - **Permissions**:
+     - **Repository permissions → Metadata**: Read-only
+     - No other repository, organization, or account permissions needed
 3. Generate a private key and save it
 4. Note your App ID and Client Secret
 
