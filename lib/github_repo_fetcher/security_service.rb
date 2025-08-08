@@ -15,10 +15,12 @@ module GithubRepoFetcher
     end
 
     def validate_request(request, username)
+      # Check username first before other validations
+      check_for_malicious_input(username)
+
       client_ip = get_client_ip(request)
       check_rate_limit(client_ip)
       validate_request_size(request)
-      check_for_malicious_input(username)
     end
 
     private
@@ -71,37 +73,50 @@ module GithubRepoFetcher
     end
 
     def validate_request_size(request)
-      # Check URL length (common safe limit is 2048 characters)
+      # Check URL length (reasonable limit for GitHub API)
       url = request['path'] || ''
       query_string = request['querystring'] || ''
       full_url = "#{url}?#{query_string}"
 
-      raise ArgumentError, 'Request URL exceeds maximum length of 2048 characters' if full_url.length > 2048
+      raise ArgumentError, 'Request URL exceeds maximum length of 1024 characters' if full_url.length > 1024
 
-      # Check query string size separately (conservative limit of 1024 characters)
-      raise ArgumentError, 'Query string exceeds maximum length of 1024 characters' if query_string.length > 1024
+      # Check query string size separately (reasonable limit for username parameter)
+      raise ArgumentError, 'Query string exceeds maximum length of 512 characters' if query_string.length > 512
 
       # Check number of query parameters to prevent parameter pollution
-      query_params = request.query || {}
+      query_params = request['query'] || {}
       return unless query_params.keys.length > 10
 
       raise ArgumentError, 'Too many query parameters (maximum 10 allowed)'
     end
 
     def check_for_malicious_input(username)
-      # Ensure username parameter is provided (basic security check)
-      raise ArgumentError, 'Username parameter is required (e.g., ?username=value)' if username.nil?
+      validate_username_presence(username)
+      validate_username_length(username)
+      validate_username_characters(username)
+      validate_username_control_chars(username)
+    end
 
-      # Security check: prevent excessively long inputs that could cause DoS
-      raise ArgumentError, 'Username exceeds maximum length of 100 characters' if username.length > 100
+    def validate_username_presence(username)
+      return unless username.nil? || username.empty?
 
-      # Security check: detect potential injection attempts or malicious patterns
-      if username.match?(/[<>'"\\;{}()\[\]|&$`]/)
-        raise ArgumentError, 'Username contains potentially malicious characters'
-      end
+      raise ArgumentError, 'Username parameter is required (e.g., ?username=value)'
+    end
 
-      # Security check: prevent null bytes and control characters
-      return unless username.match?(/[\u0000-\u001f\u007f-\u009f]/)
+    def validate_username_length(username)
+      return unless username.length > 39
+
+      raise ArgumentError, 'Username exceeds maximum length of 39 characters (GitHub username limit)'
+    end
+
+    def validate_username_characters(username)
+      return unless username.match?(/[<>'"\\;{}()\[\]|&$`]/)
+
+      raise ArgumentError, 'Username contains potentially malicious characters'
+    end
+
+    def validate_username_control_chars(username)
+      return unless username.bytes.any? { |byte| byte.between?(0, 31) || byte.between?(127, 159) }
 
       raise ArgumentError, 'Username contains invalid control characters'
     end

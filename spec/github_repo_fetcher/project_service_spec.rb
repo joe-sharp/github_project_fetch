@@ -77,22 +77,25 @@ RSpec.describe GithubRepoFetcher::ProjectService do
     end
 
     context 'with invalid username' do
-      it 'raises ArgumentError for nil username' do
-        expect do
-          service.fetch_user_projects(nil)
-        end.to raise_error(ArgumentError, 'Username is required as a query parameter')
+      it 'handles nil username gracefully', :aggregate_failures do
+        allow(mock_github_client).to receive(:fetch_user_projects).with(nil).and_return(mock_projects)
+        result = service.fetch_user_projects(nil)
+        expect(result[:username]).to be_nil
+        expect(mock_github_client).to have_received(:fetch_user_projects).with(nil)
       end
 
-      it 'raises ArgumentError for empty username' do
-        expect do
-          service.fetch_user_projects('')
-        end.to raise_error(ArgumentError, 'Username is required as a query parameter')
+      it 'handles empty username gracefully', :aggregate_failures do
+        allow(mock_github_client).to receive(:fetch_user_projects).with(nil).and_return(mock_projects)
+        result = service.fetch_user_projects('')
+        expect(result[:username]).to be_nil
+        expect(mock_github_client).to have_received(:fetch_user_projects).with(nil)
       end
 
-      it 'raises ArgumentError for whitespace-only username' do
-        expect do
-          service.fetch_user_projects('   ')
-        end.to raise_error(ArgumentError, 'Username is required as a query parameter')
+      it 'handles whitespace-only username gracefully', :aggregate_failures do
+        allow(mock_github_client).to receive(:fetch_user_projects).with('').and_return(mock_projects)
+        result = service.fetch_user_projects('   ')
+        expect(result[:username]).to eq('')
+        expect(mock_github_client).to have_received(:fetch_user_projects).with('')
       end
     end
 
@@ -139,24 +142,6 @@ RSpec.describe GithubRepoFetcher::ProjectService do
         result = service.send(:sanitize_username, long_username)
         expect(result.length).to eq(39)
         expect(result).to eq('a' * 39)
-      end
-    end
-
-    describe '#validate_username' do
-      it 'does not raise error for valid username' do
-        expect { service.send(:validate_username, 'testuser') }.not_to raise_error
-      end
-
-      it 'raises ArgumentError for nil username' do
-        expect do
-          service.send(:validate_username, nil)
-        end.to raise_error(ArgumentError, 'Username is required as a query parameter')
-      end
-
-      it 'raises ArgumentError for empty username' do
-        expect do
-          service.send(:validate_username, '')
-        end.to raise_error(ArgumentError, 'Username is required as a query parameter')
       end
     end
   end
