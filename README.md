@@ -70,7 +70,6 @@ Returns the health status of the GitHub API connection.
 - [Development Guide](docs/development.md) - Setup, testing, and architecture details
 - [Deployment Guide](docs/deployment.md) - Installation and deployment instructions
 - [CI/CD Documentation](docs/ci-cd.md) - Continuous integration and deployment workflows
-- [Vercel Setup Guide](docs/vercel-setup.md) - Vercel-specific configuration
 
 ## 📄 License
 
