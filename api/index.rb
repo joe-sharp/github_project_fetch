@@ -29,7 +29,15 @@ Handler = proc do |request, response|
           projects: '/api/projects?octocat'
         }
       }
-      GithubRepoFetcher::ApiResponseService.success_response(response, data)
+
+      # Cache API documentation for 1 hour with 2 hours stale-while-revalidate
+      # Documentation rarely changes and can be cached longer
+      GithubRepoFetcher::ApiResponseService.cached_success_response(
+        response,
+        data,
+        3600,  # 1 hour cache
+        7200   # 2 hours stale-while-revalidate
+      )
     else
       GithubRepoFetcher::ApiResponseService.not_found_response(response)
     end
