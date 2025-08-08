@@ -159,7 +159,7 @@ RSpec.describe ApiIntegration, :e2e do
     end
 
     it 'responds to projects endpoint with username', :aggregate_failures do
-      result = described_class.endpoint_responsive?(uri_builder, driver_manager, 'projects', 'octocat')
+      result = described_class.endpoint_responsive?(uri_builder, driver_manager, 'projects', 'username=octocat')
       expect(result).to be true
     end
 
