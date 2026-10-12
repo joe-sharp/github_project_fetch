@@ -90,6 +90,20 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
     end
   end
 
+  describe '.cached_html_response' do
+    it 'sets html content type, cache headers and the raw body', :aggregate_failures do
+      response = instance_spy(MockResponse)
+      allow(response).to receive(:[]=)
+
+      described_class.cached_html_response(response, '<p>hi</p>', 60, 120)
+
+      expect(response).to have_received(:[]=).with('Content-Type', 'text/html; charset=utf-8')
+      expect(response).to have_received(:[]=).with('Cache-Control', 's-maxage=60, stale-while-revalidate=120')
+      expect(response).to have_received(:status=).with(200)
+      expect(response).to have_received(:body=).with('<p>hi</p>')
+    end
+  end
+
   describe '.error_response' do
     it 'sets error status and message', :aggregate_failures do
       response = instance_spy(MockResponse)

@@ -37,6 +37,13 @@ module GithubRepoFetcher
       success_response(response, data, status)
     end
 
+    def self.cached_html_response(response, html, max_age = 3600, stale_while_revalidate = 7200)
+      response['Content-Type'] = 'text/html; charset=utf-8'
+      add_cache_headers(response, max_age, stale_while_revalidate)
+      response.status = 200
+      response.body = html
+    end
+
     def self.error_response(response, error_message, status = 500)
       response.status = status
       response.body = { error: error_message }.to_json
