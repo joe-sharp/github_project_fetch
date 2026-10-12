@@ -85,7 +85,7 @@ RSpec.describe 'Deployed API', :e2e do
       response = E2eClient.request('/api/projects')
 
       expect(response.code).to eq('400')
-      expect(E2eClient.json(response)['error']).to match(/Username parameter is required/)
+      expect(E2eClient.json(response)['error']).to include('Username parameter is required')
     end
 
     it 'rejects a username longer than 39 characters with 400' do
