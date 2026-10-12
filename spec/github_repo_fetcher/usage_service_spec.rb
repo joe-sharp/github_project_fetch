@@ -57,5 +57,11 @@ RSpec.describe GithubRepoFetcher::UsageService do
     it 'links the documented endpoints' do
       expect(described_class.html).to include('/api/projects?username=', '/api/health')
     end
+
+    # The E2E browser tests locate these elements, so a rename should fail offline first.
+    it 'keeps the element ids the E2E tests rely on' do
+      expect(described_class.html).to include('id="health"', 'id="tryForm"', 'id="username"', 'id="go"',
+                                              'id="result"', 'data-curl=', 'class="copy"')
+    end
   end
 end

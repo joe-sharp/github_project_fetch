@@ -75,6 +75,11 @@ RSpec/ExampleLength:
     - heredoc
     - method_call
 
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/api/**/*'
+    - 'spec/e2e/**/*'
+
 RSpec/NestedGroups:
   Max: 4
 

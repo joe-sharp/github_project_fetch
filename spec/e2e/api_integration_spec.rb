@@ -1,171 +1,118 @@
 # frozen_string_literal: true
 
 #
-# E2E Integration Tests
-# ====================
-# These tests are excluded from the default test suite due to their slow execution
-# and external dependencies (Selenium WebDriver, live API calls).
+# E2E API contract tests
+# ======================
+# Run against a deployment (Vercel preview or production). Excluded from the default
+# suite because they need network access to a live deployment.
 #
-# To run these tests specifically:
-#   bin/test_api.rb
+#   bin/test_api.rb                          # production
 #   bin/test_api.rb <preview deployment URL>
+#   VERCEL_URL=<url> RUN_E2E=true bundle exec rspec --tag e2e
 #
-# To run all tests including e2e:
-#   RUN_E2E=true bundle exec rspec
-#   VERCEL_URL=<preview deployment URL> RUN_E2E=true bundle exec rspec
+# Previews are protected, so set VERCEL_AUTOMATION_BYPASS_SECRET for them.
+# The deployment rate limits to 60 requests / 5 min / IP, so keep the request count small.
 
 require 'spec_helper'
-require 'selenium-webdriver'
-require 'json'
-require 'uri'
 
-# Handles URI building and parameter management
-class UriBuilder
-  def initialize(base_url)
-    @base_url = base_url
-    @bypass_secret = ENV.fetch('VERCEL_AUTOMATION_BYPASS_SECRET', nil)
-    @bypass_secret = nil if base_url.match?(%r{^https://github-project-fetch.vercel.app})
+RSpec.describe 'Deployed API', :e2e do
+  let(:usage_keys) { %w[name version endpoints parameters examples limits errors] }
+  let(:project_keys) do
+    %w[name description languages forks_count stargazers_count html_url created_at updated_at]
   end
 
-  def build(endpoint, username = nil)
-    uri = URI(File.join(@base_url, 'api', endpoint))
-    uri.query = username if username
+  describe 'GET /api' do
+    it 'serves JSON usage by default', :aggregate_failures do
+      response = E2eClient.request('/api')
 
-    # Add Vercel protection bypass header
-    uri.query = [uri.query, "x-vercel-protection-bypass=#{@bypass_secret}"].compact.join('&') if @bypass_secret
-
-    uri
-  end
-end
-
-# Handles JSON parsing and response processing
-class ResponseProcessor
-  def self.parse_json(content)
-    JSON.parse(content)
-  rescue JSON::ParserError
-    nil
-  end
-
-  def self.extract_json_from_html(page_source)
-    json_match = page_source.match(%r{<pre>(.*?)</pre>}m)
-    return nil unless json_match
-
-    json_match[1]
-  end
-
-  def self.process_response?(page_source)
-    # Try to extract JSON from HTML response
-    json_content = extract_json_from_html(page_source)
-    return ResponseFormatter.json_response?(json_content, 'JSON in HTML') if json_content
-
-    # Handle error responses
-    ResponseFormatter.error_response?(page_source)
-  end
-end
-
-# Handles response formatting and output
-class ResponseFormatter
-  def self.json_response?(json_content, source_type)
-    data = ResponseProcessor.parse_json(json_content)
-    if data
-      puts "   ✅ Status: 200 OK (#{source_type})\n   " \
-           "📊 Response: #{JSON.pretty_generate(data)}"
-    else
-      puts "   📄 Response: #{json_content[0..500]}..."
-    end
-    true
-  end
-
-  def self.error_response?(page_source)
-    if page_source.include?('Authentication Required')
-      warn "   ❌ Status: 401 Unauthorized\n" \
-           '📄 Response: Authentication required page'
-    elsif page_source.include?('404') || page_source.include?('Not Found')
-      warn "   ❌ Status: 404 Not Found\n" \
-           "📄 Response: #{page_source[0..200]}..."
-    else
-      warn "   ⚠️  Status: Unknown\n" \
-           "📄 Response: #{page_source[0..500]}..."
-    end
-    false
-  end
-end
-
-# Manages Selenium WebDriver lifecycle
-class WebDriverManager
-  def initialize
-    @driver = nil
-  end
-
-  def setup
-    options = Selenium::WebDriver::Chrome::Options.new
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920,1080')
-
-    @driver = Selenium::WebDriver.for :chrome, options: options
-  end
-
-  def fetch_page(uri)
-    @driver.get(uri.to_s)
-    wait = Selenium::WebDriver::Wait.new(timeout: 2)
-    wait.until { @driver.find_element(:tag_name, 'pre') }
-    @driver.page_source
-  end
-
-  def cleanup
-    @driver&.quit
-  end
-end
-
-# API Integration test suite for end-to-end testing
-class ApiIntegration
-  def self.endpoint_responsive?(uri_builder, driver_manager, endpoint, username = nil)
-    uri = uri_builder.build(endpoint, username)
-    puts "🔮 Testing: #{uri}"
-
-    page_source = driver_manager.fetch_page(uri)
-    ResponseProcessor.process_response?(page_source)
-  end
-end
-
-RSpec.describe ApiIntegration, :e2e do
-  let(:api_url) { ENV.fetch('VERCEL_URL', 'https://github-project-fetch.vercel.app') }
-  let(:uri_builder) { UriBuilder.new(api_url) }
-  let(:driver_manager) { WebDriverManager.new }
-
-  before do
-    puts "🧙🏻 Testing GitHub Project Fetcher API\n" \
-         "=====================================\n" \
-         "📍 API URL: #{api_url}\n\n"
-    driver_manager.setup
-  end
-
-  after do
-    driver_manager.cleanup
-  end
-
-  describe 'API endpoints' do
-    it 'responds to root endpoint', :aggregate_failures do
-      result = described_class.endpoint_responsive?(uri_builder, driver_manager, '')
-      expect(result).to be true
+      expect(response.code).to eq('200')
+      expect(response['content-type']).to include('application/json')
+      expect(response['vary']).to include('Accept')
+      expect(E2eClient.json(response)).to include(*usage_keys)
     end
 
-    it 'responds to health endpoint', :aggregate_failures do
-      result = described_class.endpoint_responsive?(uri_builder, driver_manager, 'health')
-      expect(result).to be true
+    it 'serves the HTML guide when HTML is requested', :aggregate_failures do
+      response = E2eClient.request('/api', accept: 'text/html')
+
+      expect(response.code).to eq('200')
+      expect(response['content-type']).to include('text/html')
+      expect(response.body).to include('id="tryForm"')
     end
 
-    it 'responds to projects endpoint with username', :aggregate_failures do
-      result = described_class.endpoint_responsive?(uri_builder, driver_manager, 'projects', 'username=octocat')
-      expect(result).to be true
+    it 'serves the HTML guide for ?format=html', :aggregate_failures do
+      response = E2eClient.request('/api?format=html')
+
+      expect(response['content-type']).to include('text/html')
     end
 
-    it 'responds to projects endpoint without username', :aggregate_failures do
-      result = described_class.endpoint_responsive?(uri_builder, driver_manager, 'projects')
-      expect(result).to be true
+    it 'rewrites / to the usage endpoint', :aggregate_failures do
+      response = E2eClient.request('/')
+
+      expect(response.code).to eq('200')
+      expect(E2eClient.json(response)).to include('endpoints')
+    end
+  end
+
+  describe 'GET /api/health' do
+    it 'reports a healthy GitHub connection', :aggregate_failures do
+      response = E2eClient.request('/api/health')
+      body = E2eClient.json(response)
+
+      expect(response.code).to eq('200')
+      expect(body['status']).to eq('healthy')
+      expect(body['rate_limit']).to include('remaining', 'limit', 'reset_time', 'used_percentage')
+    end
+  end
+
+  describe 'GET /api/projects' do
+    let(:response) { E2eClient.request('/api/projects?username=octocat') }
+    let(:body) { E2eClient.json(response) }
+
+    it 'returns the documented shape for a real user', :aggregate_failures do
+      expect(response.code).to eq('200')
+      expect(body).to include('username' => 'octocat', 'projects_count' => body['projects'].length)
+      expect(body['projects'].first.keys).to include(*project_keys)
+    end
+
+    it 'reports language byte counts as integers', :aggregate_failures do
+      languages = body['projects'].flat_map { |project| project['languages'].values }
+
+      expect(languages).not_to be_empty
+      expect(languages).to all(be_a(Integer))
+    end
+
+    it 'rejects a missing username with 400', :aggregate_failures do
+      response = E2eClient.request('/api/projects')
+
+      expect(response.code).to eq('400')
+      expect(E2eClient.json(response)['error']).to match(/Username parameter is required/)
+    end
+
+    it 'rejects a username longer than 39 characters with 400' do
+      response = E2eClient.request("/api/projects?username=#{'a' * 40}")
+
+      expect(response.code).to eq('400')
+    end
+
+    it 'rejects unsafe characters with 400' do
+      response = E2eClient.request('/api/projects?username=a%3Cb')
+
+      expect(response.code).to eq('400')
+    end
+  end
+
+  describe 'CORS and routing' do
+    # Vercel answers OPTIONS itself, so the handler's preflight branch (covered by the unit
+    # specs) is not reached on a deployment and its CORS headers are absent here.
+    it 'answers preflight requests', :aggregate_failures do
+      response = E2eClient.request('/api/projects', method: :options)
+
+      expect(response.code).to eq('200')
+      expect(response['allow']).to include('OPTIONS')
+    end
+
+    it 'sends CORS headers on regular responses' do
+      expect(E2eClient.request('/api/health')['access-control-allow-origin']).to eq('*')
     end
   end
 end
