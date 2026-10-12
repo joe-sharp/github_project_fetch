@@ -28,7 +28,7 @@ assignees: ['joe-sharp']
 ## 📋 Environment
 
 - **OS:** [e.g. macOS, Ubuntu, Windows]
-- **Ruby:** [e.g. 3.3.8]
+- **Ruby:** [e.g. 3.4.10]
 - **GitHub Project Fetch:** [e.g. 1.0.0]
 - **Browser or Client:** [e.g. Chrome, Postman]
 
