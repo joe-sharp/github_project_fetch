@@ -1,5 +1,13 @@
 # 🪄 GitHub Project Fetch
 
+<!-- badges:start -->
+<p align="center">
+  <a href="https://github.com/joe-sharp/github_project_fetch/actions/workflows/main.yml"><img src="https://github.com/joe-sharp/github_project_fetch/actions/workflows/main.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/joe-sharp/github_project_fetch/actions/workflows/e2e-tests.yml"><img src="https://github.com/joe-sharp/github_project_fetch/actions/workflows/e2e-tests.yml/badge.svg" alt="Build" /></a>
+  <a href="https://github.com/joe-sharp/github_project_fetch/actions/workflows/main.yml"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/joe-sharp/github_project_fetch/badges/coverage.json" alt="Code Coverage" /></a>
+</p>
+<!-- badges:end -->
+
 <p align="center">
   <img width=400 src="https://raw.githubusercontent.com/joe-sharp/github_project_fetch/refs/heads/images/github-project-fetch.webp">
 </p>
