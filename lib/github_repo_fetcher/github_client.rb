@@ -2,6 +2,7 @@
 
 require 'octokit'
 require 'jwt'
+require_relative 'language_fallback'
 
 module GithubRepoFetcher
   # GithubClient handles authentication and interaction with the GitHub API
@@ -121,20 +122,16 @@ module GithubRepoFetcher
       raise "Failed to parse private key: #{e.message}"
     end
 
-    def fetch_repository_languages(full_name)
+    def fetch_repository_languages(full_name, default_branch = nil)
       cache_key = "languages_#{full_name}"
       return @cache[cache_key][:data] if cache_valid?(cache_key)
 
-      languages = client.languages(full_name)
-
       # Convert Sawyer::Resource to hash for JSON serialization
-      languages_hash = languages.to_h
+      languages_hash = client.languages(full_name).to_h
+      languages_hash = LanguageFallback.fetch(client, full_name, default_branch) if languages_hash.empty?
 
       # Cache the results
-      @cache[cache_key] = {
-        data: languages_hash,
-        timestamp: Time.now
-      }
+      @cache[cache_key] = { data: languages_hash, timestamp: Time.now }
 
       languages_hash
     rescue Octokit::Error
@@ -158,7 +155,7 @@ module GithubRepoFetcher
       {
         name: repo.name,
         description: repo.description,
-        languages: fetch_repository_languages(repo.full_name),
+        languages: fetch_repository_languages(repo.full_name, repo.default_branch),
         forks_count: repo.forks_count,
         stargazers_count: repo.stargazers_count,
         html_url: repo.html_url,

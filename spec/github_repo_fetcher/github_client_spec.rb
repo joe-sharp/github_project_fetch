@@ -99,6 +99,42 @@ MOCK_KEY_FOR_TESTING
       expect(project).to include(:name, :description, :languages, :forks_count, :stargazers_count)
     end
 
+    context 'when the languages API returns no languages' do
+      before do
+        stub_repositories_request
+        stub_languages_request(body: {})
+      end
+
+      it 'falls back to file extensions from the git tree' do
+        stub_tree_request([
+                            { path: 'a.yml', type: 'blob', size: 100 },
+                            { path: 'b.yaml', type: 'blob', size: 50 },
+                            { path: 'README.md', type: 'blob', size: 25 },
+                            { path: 'logo.png', type: 'blob', size: 999 },
+                            { path: 'docs', type: 'tree' }
+                          ])
+
+        languages = client.fetch_user_projects('testuser').first[:languages]
+        expect(languages).to eq('YAML' => 150, 'Markdown' => 25)
+      end
+
+      it 'returns an empty hash when no extensions match' do
+        stub_tree_request([{ path: 'logo.png', type: 'blob', size: 10 }])
+
+        expect(client.fetch_user_projects('testuser').first[:languages]).to eq({})
+      end
+    end
+
+    context 'when the languages API returns languages' do
+      it 'does not read the git tree' do
+        stub_repositories_request
+        stub_languages_request
+
+        client.fetch_user_projects('testuser')
+        expect(a_request(:get, %r{git/trees})).not_to have_been_made
+      end
+    end
+
     context 'when user is not found' do
       before do
         stub_user_not_found
@@ -221,6 +257,7 @@ MOCK_KEY_FOR_TESTING
             name: 'test-repo',
             description: 'A test repository',
             full_name: 'testuser/test-repo',
+            default_branch: 'main',
             forks_count: 5,
             stargazers_count: 10,
             html_url: 'https://github.com/testuser/test-repo',
@@ -231,7 +268,16 @@ MOCK_KEY_FOR_TESTING
       )
   end
 
-  def stub_languages_request
+  def stub_tree_request(entries)
+    stub_request(:get, 'https://api.github.com/repos/testuser/test-repo/git/trees/main?recursive=true')
+      .to_return(
+        status: 200,
+        headers: { 'Content-Type' => 'application/json' },
+        body: { sha: 'abc', tree: entries, truncated: false }.to_json
+      )
+  end
+
+  def stub_languages_request(body: { Ruby: 1000, JavaScript: 500 })
     stub_request(:get, 'https://api.github.com/repos/testuser/test-repo/languages')
       .with(
         headers: {
@@ -243,7 +289,7 @@ MOCK_KEY_FOR_TESTING
       .to_return(
         status: 200,
         headers: { 'Content-Type' => 'application/json' },
-        body: { Ruby: 1000, JavaScript: 500 }.to_json
+        body: body.to_json
       )
   end
 

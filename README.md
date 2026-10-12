@@ -11,7 +11,7 @@ A Ruby serverless application that fetches public repositories along with their 
 - **GitHub App Authentication**: Uses JWT tokens for secure GitHub API access
 - **Repository Data**: Fetches comprehensive repository information including:
   - Name and description
-  - Programming languages with byte counts
+  - Programming languages with byte counts (YAML, JSON and Markdown, which GitHub's languages API omits, are detected from the file tree when a repo has no other languages)
   - Fork and star counts
   - Creation and update dates
 - **RESTful API**: Clean JSON endpoints for easy integration
