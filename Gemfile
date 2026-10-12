@@ -5,9 +5,9 @@ source 'https://rubygems.org'
 ruby '~> 3.3'
 
 # Core dependencies
-gem 'dotenv', '~> 3.1'
-gem 'json', '~> 2.6'
-gem 'jwt', '~> 3.1'
+gem 'dotenv', '~> 3.2'
+gem 'json', '~> 3.0'
+gem 'jwt', '~> 3.3'
 gem 'octokit', '~> 10.0'
 
 # Development and testing
