@@ -1,5 +1,16 @@
 # frozen_string_literal: true
 
+if ENV['COVERAGE'] == 'true'
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter '/spec/'
+    add_filter '/vendor/'
+    add_filter '/bin/'
+
+    enable_coverage :branch
+  end
+end
+
 require 'rspec'
 require 'webmock/rspec'
 
