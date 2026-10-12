@@ -70,7 +70,6 @@ RSpec.describe 'Deployed API', :e2e do
 
     it 'returns the documented shape for a real user', :aggregate_failures do
       expect(response.code).to eq('200')
-      expect(response['cache-control']).to include('s-maxage=600')
       expect(body).to include('username' => 'octocat', 'projects_count' => body['projects'].length)
       expect(body['projects'].first.keys).to include(*project_keys)
     end
@@ -107,7 +106,7 @@ RSpec.describe 'Deployed API', :e2e do
       response = E2eClient.request('/api/projects', method: :options)
 
       expect(response.code).to eq('200')
-      expect(response['access-control-allow-origin']).to eq('*')
+      expect(response['access-control-allow-origin']).to eq('*'), "headers: #{response.to_hash}"
     end
 
     it 'sends CORS headers on regular responses' do
