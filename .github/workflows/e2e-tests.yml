@@ -46,6 +46,14 @@ jobs:
         env:
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-preview
+          path: tmp/screenshots
+          if-no-files-found: ignore
+
   test-production:
     if: github.event_name == 'repository_dispatch' && github.event.client_payload.environment == 'production'
     runs-on: ubuntu-latest
@@ -82,3 +90,11 @@ jobs:
         id: test
         run: |
           bin/test_api.rb
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots-production
+          path: tmp/screenshots
+          if-no-files-found: ignore

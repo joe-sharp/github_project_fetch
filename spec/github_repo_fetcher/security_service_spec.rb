@@ -28,6 +28,32 @@ RSpec.describe GithubRepoFetcher::SecurityService do
       expect { described_class.validate_request(mock_request, '') }
         .to raise_error(ArgumentError, 'Username parameter is required (e.g., ?username=value)')
     end
+
+    it 'accepts a username of exactly 39 characters' do
+      expect { described_class.validate_request(mock_request, 'a' * 39) }.not_to raise_error
+    end
+
+    context 'with the shared rate limiter' do
+      let(:limited_request) { mock_request.merge('headers' => { 'x-forwarded-for' => '198.51.100.9' }) }
+
+      before { described_class::RATE_LIMITER[:requests].clear }
+
+      after { described_class::RATE_LIMITER[:requests].clear }
+
+      it 'allows 60 requests and rejects the 61st from the same IP' do
+        60.times { described_class.validate_request(limited_request, 'testuser') }
+
+        expect { described_class.validate_request(limited_request, 'testuser') }
+          .to raise_error(ArgumentError, /Rate limit exceeded/)
+      end
+
+      it 'tracks each IP separately' do
+        60.times { described_class.validate_request(limited_request, 'testuser') }
+        other_ip = mock_request.merge('headers' => { 'x-forwarded-for' => '198.51.100.10' })
+
+        expect { described_class.validate_request(other_ip, 'testuser') }.not_to raise_error
+      end
+    end
   end
 
   describe '#get_client_ip' do
