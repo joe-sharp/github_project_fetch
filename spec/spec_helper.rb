@@ -31,6 +31,10 @@ RSpec.configure do |config|
   # Exclude e2e tests by default - they're slow and require external dependencies
   config.filter_run_excluding :e2e unless ENV['RUN_E2E']
 
+  # E2E examples talk to a real deployment, so lift WebMock's network block for them only
+  config.before(:each, :e2e) { WebMock.allow_net_connect! }
+  config.after(:each, :e2e) { WebMock.disable_net_connect!(allow_localhost: true) }
+
   config.order = :random
   Kernel.srand config.seed
 end
