@@ -54,7 +54,7 @@ GEM
       guard-compat (~> 1.0)
     hashdiff (1.2.0)
     json (2.13.2)
-    jwt (3.1.2)
+    jwt (3.2.0)
       base64
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
@@ -169,7 +169,7 @@ DEPENDENCIES
   guard-rubocop
   guard-shell
   json (~> 2.6)
-  jwt (~> 3.1)
+  jwt (~> 3.2)
   octokit (~> 10.0)
   pry
   pry-byebug
