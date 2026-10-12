@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Ruby 3.3+
+- Ruby 3.4+
 - GitHub App with "Read repository data" permissions
 
 ## Installation
