@@ -37,7 +37,7 @@ RSpec.describe 'api/projects.rb', :aggregate_failures, type: :handler do
     response = run_handler('projects', path: '/api/projects')
 
     expect(response.status).to eq(400)
-    expect(response.json['error']).to match(/Username parameter is required/)
+    expect(response.json['error']).to include('Username parameter is required')
   end
 
   it 'returns 400 for an unsafe username' do

@@ -62,7 +62,7 @@ RSpec.describe 'Usage page', :e2e do
     driver.find_element(id: 'go').click
     wait.until { driver.find_elements(css: '#result .repo').any? }
 
-    expect(driver.find_element(css: '#result .msg').text).to match(/public repositories for octocat/)
+    expect(driver.find_element(css: '#result .msg').text).to include('public repositories for octocat')
     expect(driver.find_elements(css: '#result .repo .chip')).not_to be_empty
     expect(driver.find_element(css: '#result details summary').text).to eq('Raw JSON')
   end
