@@ -93,7 +93,7 @@ bin/test_api.rb https://your-preview-url.vercel.app
 - **`github_repo_fetcher/api_response_service.rb`**: Response formatting and API response handling
 
 ### API Endpoints (`api/`)
-- **`index.rb`**: Vercel serverless function entry point (`/api`)
+- **`index.rb`**: Usage endpoint (`/api` and `/`): HTML page for browsers, JSON otherwise (see `UsageService`)
 - **`health.rb`**: Health check endpoint (`/api/health`)
 - **`projects.rb`**: Projects (repositories) fetching endpoint (`/api/projects`)
 

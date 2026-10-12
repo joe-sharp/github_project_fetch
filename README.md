@@ -55,7 +55,7 @@ Fetches all public repositories and their language information for a given GitHu
 ```bash
 curl https://github-project-fetch.vercel.app/api
 ```
-Returns API information and available endpoints.
+Returns API information, parameters, limits and available endpoints as JSON. Visiting the site root (or `/api`) in a browser shows the same information as a styled usage page with a live "try it" box; add `?format=json` to force JSON.
 
 #### Health Check
 ```bash
