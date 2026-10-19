@@ -6,7 +6,7 @@ ruby '~> 3.3'
 
 # Core dependencies
 gem 'dotenv', '~> 3.2'
-gem 'json', '~> 3.0'
+gem 'json', '~> 3.1'
 gem 'jwt', '~> 3.3'
 gem 'octokit', '~> 10.0'
 
