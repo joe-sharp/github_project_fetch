@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json'
+
 module GithubRepoFetcher
   # ApiResponseService handles common API response formatting and CORS headers
   class ApiResponseService
@@ -27,9 +29,15 @@ module GithubRepoFetcher
       response['Cache-Control'] = "s-maxage=#{max_age}, stale-while-revalidate=#{stale_while_revalidate}"
     end
 
+    # Escape non-ASCII characters so the body stays valid even if the runtime
+    # re-tags it as ASCII-8BIT (the Lambda marshaller fails on high bytes otherwise)
+    def self.json_body(data)
+      JSON.generate(data, ascii_only: true)
+    end
+
     def self.success_response(response, data, status = 200)
       response.status = status
-      response.body = data.to_json
+      response.body = json_body(data)
     end
 
     def self.cached_success_response(response, data, max_age = 600, stale_while_revalidate = 1200, status = 200)
@@ -46,7 +54,7 @@ module GithubRepoFetcher
 
     def self.error_response(response, error_message, status = 500)
       response.status = status
-      response.body = { error: error_message }.to_json
+      response.body = json_body({ error: error_message })
     end
 
     def self.not_found_response(response, message = 'Endpoint not found')
