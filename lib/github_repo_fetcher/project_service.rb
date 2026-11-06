@@ -9,10 +9,10 @@ module GithubRepoFetcher
       @github_client = github_client || GithubRepoFetcher::GithubClient.new
     end
 
-    def fetch_user_projects(username)
+    def fetch_user_projects(username, include_fork_metadata: false)
       sanitized_username = sanitize_username(username)
 
-      projects = @github_client.fetch_user_projects(sanitized_username)
+      projects = @github_client.fetch_user_projects(sanitized_username, include_fork_metadata: include_fork_metadata)
 
       {
         username: sanitized_username,

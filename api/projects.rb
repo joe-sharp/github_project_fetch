@@ -16,12 +16,14 @@ Handler = proc do |request, response|
     # Get username from query parameters
     query_params = request.query || {}
     username = query_params["username"]
+    # Fork fields cost an extra GitHub lookup per fork, so they are opt-in
+    include_fork_metadata = query_params["include_fork_metadata"] == "true"
 
     # Validate request and enforce security policies
     GithubRepoFetcher::SecurityService.validate_request(request, username)
 
     project_service = GithubRepoFetcher::ProjectService.new
-    result = project_service.fetch_user_projects(username)
+    result = project_service.fetch_user_projects(username, include_fork_metadata: include_fork_metadata)
 
     # Cache GitHub data for 10 minutes with 20 minutes stale-while-revalidate
     # This balances freshness with performance for public repository data

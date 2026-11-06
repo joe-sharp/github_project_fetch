@@ -57,6 +57,11 @@ Fetches all public repositories and their language information for a given GitHu
 ...
 ```
 
+Add `include_fork_metadata=true` to also get `fork` and `parent_full_name` for each project. Forks cost one extra GitHub lookup each.
+```bash
+curl "https://github-project-fetch.vercel.app/api/projects?username=octocat&include_fork_metadata=true"
+```
+
 ### Utility Endpoints
 
 #### API Information

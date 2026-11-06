@@ -23,11 +23,11 @@ module GithubRepoFetcher
       setup_client
     end
 
-    def fetch_user_projects(username)
-      cache_key = "projects_#{username}"
+    def fetch_user_projects(username, include_fork_metadata: false)
+      cache_key = "projects_#{username}#{"_fork_metadata" if include_fork_metadata}"
       return @cache[cache_key][:data] if cache_valid?(cache_key)
 
-      projects = fetch_and_transform_projects(username)
+      projects = fetch_and_transform_projects(username, include_fork_metadata)
       cache_projects(cache_key, projects)
       projects
     rescue Octokit::NotFound
@@ -145,23 +145,45 @@ module GithubRepoFetcher
       (Time.now - @cache[key][:timestamp]) < @cache_ttl
     end
 
-    def fetch_and_transform_projects(username)
+    def fetch_and_transform_projects(username, include_fork_metadata)
       client.repos(username, per_page: 100).map do |repo|
-        transform_project_data(repo)
+        transform_project_data(repo, include_fork_metadata)
       end
     end
 
-    def transform_project_data(repo)
+    def transform_project_data(repo, include_fork_metadata)
       {
         name: repo.name,
         description: repo.description,
         languages: fetch_repository_languages(repo.full_name, repo.default_branch),
         forks_count: repo.forks_count,
         stargazers_count: repo.stargazers_count,
+        **fork_metadata(repo, include_fork_metadata),
         html_url: repo.html_url,
         created_at: repo.created_at,
         updated_at: repo.updated_at
       }
+    end
+
+    def fork_metadata(repo, include_fork_metadata)
+      return {} unless include_fork_metadata
+
+      { fork: repo.fork, parent_full_name: fork_parent_full_name(repo) }
+    end
+
+    # The list endpoint omits `parent`, so a fork needs its own repo lookup.
+    # Returns nil for non-forks and when the lookup fails.
+    def fork_parent_full_name(repo)
+      return nil unless repo.fork
+
+      cache_key = "parent_#{repo.full_name}"
+      return @cache[cache_key][:data] if cache_valid?(cache_key)
+
+      parent_name = client.repo(repo.full_name).parent&.full_name
+      @cache[cache_key] = { data: parent_name, timestamp: Time.now }
+      parent_name
+    rescue Octokit::Error
+      nil
     end
 
     def cache_projects(cache_key, projects)

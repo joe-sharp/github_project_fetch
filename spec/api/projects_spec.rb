@@ -16,13 +16,21 @@ RSpec.describe "api/projects.rb", :aggregate_failures, type: :handler do
   end
 
   it "returns the user projects with 10 minute caching" do
-    allow(service).to receive(:fetch_user_projects).with("octocat").and_return(result)
+    allow(service).to receive(:fetch_user_projects).with("octocat", include_fork_metadata: false).and_return(result)
 
     response = run_handler("projects", path: "/api/projects", query: { "username" => "octocat" })
 
     expect(response.status).to eq(200)
     expect(response.json).to eq("username" => "octocat", "projects_count" => 0, "projects" => [])
     expect(response["Cache-Control"]).to eq("s-maxage=600, stale-while-revalidate=1200")
+  end
+
+  it "passes include_fork_metadata through when requested" do
+    allow(service).to receive(:fetch_user_projects).and_return(result)
+
+    run_handler("projects", query: { "username" => "octocat", "include_fork_metadata" => "true" })
+
+    expect(service).to have_received(:fetch_user_projects).with("octocat", include_fork_metadata: true)
   end
 
   it "sends CORS headers" do
