@@ -1,21 +1,12 @@
-plugins:
-  - rubocop-performance
-  - rubocop-rspec
+inherit_gem:
+  sharp_style_rubocop: config/default.yml
+
+inherit_mode:
+  merge:
+    - AllowedMethods
 
 AllCops:
-  NewCops: enable
   ExtraDetails: true
-
-Layout/EndOfLine:
-  EnforcedStyle: lf
-
-Layout/HashAlignment:
-  EnforcedHashRocketStyle:
-    - key
-    - table
-  EnforcedColonStyle:
-    - table
-    - key
 
 Lint/AmbiguousBlockAssociation:
   AllowedPatterns:
@@ -24,38 +15,6 @@ Lint/AmbiguousBlockAssociation:
 Metrics/AbcSize:
   AllowedMethods:
     - render
-
-Metrics/BlockLength:
-  CountAsOne:
-    - array
-    - hash
-    - heredoc
-    - method_call
-
-Metrics/ClassLength:
-  CountAsOne:
-    - array
-    - hash
-    - heredoc
-    - method_call
-
-Metrics/MethodLength:
-  CountAsOne:
-    - array
-    - hash
-    - heredoc
-    - method_call
-
-Metrics/ModuleLength:
-  CountAsOne:
-    - array
-    - hash
-    - heredoc
-    - method_call
-
-# Allow underscore to indicate private variable.
-Naming/MemoizedInstanceVariableName:
-  EnforcedStyleForLeadingUnderscores: optional
 
 Naming/MethodParameterName:
   AllowedNames:
@@ -69,40 +28,14 @@ Performance/RedundantMerge:
 RSpec/ExampleLength:
   Exclude:
     - 'spec/github_repo_fetcher/api_response_service_spec.rb'
-  CountAsOne:
-    - array
-    - hash
-    - heredoc
-    - method_call
 
 RSpec/DescribeClass:
   Exclude:
     - 'spec/api/**/*'
     - 'spec/e2e/**/*'
 
-RSpec/NestedGroups:
-  Max: 4
-
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
-
 RSpec/AnyInstance:
   Exclude: []
 
 RSpec/VerifiedDoubles:
   Exclude: []
-
-Style/Alias:
-  EnforcedStyle: prefer_alias_method
-
-Style/FormatStringToken:
-  Enabled: false
-
-Style/Lambda:
-  Enabled: false
-
-Style/SymbolArray:
-  MinSize: 3
-
-Style/WordArray:
-  MinSize: 3
