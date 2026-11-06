@@ -136,11 +136,20 @@ MOCK_KEY_FOR_TESTING
     end
 
     context "with fork metadata" do
+      it "omits fork fields and makes no parent lookup by default", :aggregate_failures do
+        stub_repositories_request(fork: true)
+        stub_languages_request
+
+        project = client.fetch_user_projects("testuser").first
+        expect(project).not_to include(:fork, :parent_full_name)
+        expect(a_request(:get, "https://api.github.com/repos/testuser/test-repo")).not_to have_been_made
+      end
+
       it "marks a non-fork with no parent and makes no parent lookup", :aggregate_failures do
         stub_repositories_request
         stub_languages_request
 
-        project = client.fetch_user_projects("testuser").first
+        project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
         expect(project).to include(fork: false, parent_full_name: nil)
         expect(a_request(:get, "https://api.github.com/repos/testuser/test-repo")).not_to have_been_made
       end
@@ -150,7 +159,7 @@ MOCK_KEY_FOR_TESTING
         stub_languages_request
         stub_repo_request(parent_full_name: "upstream/test-repo")
 
-        project = client.fetch_user_projects("testuser").first
+        project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
         expect(project).to include(fork: true, parent_full_name: "upstream/test-repo")
       end
 
@@ -159,7 +168,7 @@ MOCK_KEY_FOR_TESTING
         stub_languages_request
         stub_repo_error
 
-        projects = client.fetch_user_projects("testuser")
+        projects = client.fetch_user_projects("testuser", include_fork_metadata: true)
         expect(projects.size).to eq(1)
         expect(projects.first).to include(fork: true, parent_full_name: nil)
       end

@@ -5,6 +5,7 @@ require "spec_helper"
 RSpec.describe GithubRepoFetcher::ProjectService do
   let(:mock_github_client) { instance_double(GithubRepoFetcher::GithubClient) }
   let(:service) { described_class.new(mock_github_client) }
+  let(:default_options) { { include_fork_metadata: false } }
 
   describe "#initialize" do
     it "creates a new instance with default github client" do
@@ -36,7 +37,10 @@ RSpec.describe GithubRepoFetcher::ProjectService do
 
     context "with valid username" do
       before do
-        allow(mock_github_client).to receive(:fetch_user_projects).with("testuser").and_return(mock_projects)
+        allow(mock_github_client).to receive(:fetch_user_projects).with(
+          "testuser",
+                                                                        **default_options
+        ).and_return(mock_projects)
       end
 
       it "returns formatted project data" do
@@ -53,49 +57,61 @@ RSpec.describe GithubRepoFetcher::ProjectService do
         result = service.fetch_user_projects("TestUser!@#")
 
         expect(result[:username]).to eq("testuser")
-        expect(mock_github_client).to have_received(:fetch_user_projects).with("testuser")
+        expect(mock_github_client).to have_received(:fetch_user_projects).with("testuser", **default_options)
       end
 
       it "handles username with special characters", :aggregate_failures do
-        allow(mock_github_client).to receive(:fetch_user_projects).with("test-user_123").and_return(mock_projects)
+        allow(mock_github_client).to receive(:fetch_user_projects).with(
+          "test-user_123",
+                                                                        **default_options
+        ).and_return(mock_projects)
 
         result = service.fetch_user_projects("test-user_123")
 
         expect(result[:username]).to eq("test-user_123")
-        expect(mock_github_client).to have_received(:fetch_user_projects).with("test-user_123")
+        expect(mock_github_client).to have_received(:fetch_user_projects).with("test-user_123", **default_options)
       end
 
       it "truncates long usernames to 39 characters", :aggregate_failures do
         long_username = "a" * 50
-        allow(mock_github_client).to receive(:fetch_user_projects).with("a" * 39).and_return(mock_projects)
+        allow(mock_github_client).to receive(:fetch_user_projects).with(
+          "a" * 39,
+                                                                        **default_options
+        ).and_return(mock_projects)
 
         result = service.fetch_user_projects(long_username)
 
         expect(result[:username].length).to eq(39)
-        expect(mock_github_client).to have_received(:fetch_user_projects).with("a" * 39)
+        expect(mock_github_client).to have_received(:fetch_user_projects).with("a" * 39, **default_options)
       end
     end
 
     context "with invalid username" do
       it "handles nil username gracefully", :aggregate_failures do
-        allow(mock_github_client).to receive(:fetch_user_projects).with(nil).and_return(mock_projects)
+        allow(mock_github_client).to receive(:fetch_user_projects).with(
+          nil,
+                                                                        **default_options
+        ).and_return(mock_projects)
         result = service.fetch_user_projects(nil)
         expect(result[:username]).to be_nil
-        expect(mock_github_client).to have_received(:fetch_user_projects).with(nil)
+        expect(mock_github_client).to have_received(:fetch_user_projects).with(nil, **default_options)
       end
 
       it "handles empty username gracefully", :aggregate_failures do
-        allow(mock_github_client).to receive(:fetch_user_projects).with(nil).and_return(mock_projects)
+        allow(mock_github_client).to receive(:fetch_user_projects).with(
+          nil,
+                                                                        **default_options
+        ).and_return(mock_projects)
         result = service.fetch_user_projects("")
         expect(result[:username]).to be_nil
-        expect(mock_github_client).to have_received(:fetch_user_projects).with(nil)
+        expect(mock_github_client).to have_received(:fetch_user_projects).with(nil, **default_options)
       end
 
       it "handles whitespace-only username gracefully", :aggregate_failures do
-        allow(mock_github_client).to receive(:fetch_user_projects).with("").and_return(mock_projects)
+        allow(mock_github_client).to receive(:fetch_user_projects).with("", **default_options).and_return(mock_projects)
         result = service.fetch_user_projects("   ")
         expect(result[:username]).to eq("")
-        expect(mock_github_client).to have_received(:fetch_user_projects).with("")
+        expect(mock_github_client).to have_received(:fetch_user_projects).with("", **default_options)
       end
     end
 
