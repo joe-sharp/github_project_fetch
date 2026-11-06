@@ -1,26 +1,26 @@
 # frozen_string_literal: true
 
-if ENV['COVERAGE'] == 'true'
-  require 'simplecov'
+if ENV["COVERAGE"] == "true"
+  require "simplecov"
   SimpleCov.start do
-    add_filter '/spec/'
-    add_filter '/vendor/'
-    add_filter '/bin/'
+    add_filter "/spec/"
+    add_filter "/vendor/"
+    add_filter "/bin/"
 
     enable_coverage :branch
   end
 end
 
-require 'rspec'
-require 'webmock/rspec'
+require "rspec"
+require "webmock/rspec"
 
 # Configure WebMock to block all external HTTP requests
 WebMock.disable_net_connect!(allow_localhost: true)
 
 # Load the application
-require_relative '../lib/github_repo_fetcher'
+require_relative "../lib/github_repo_fetcher"
 
-Dir[File.join(__dir__, 'support', '**', '*.rb')].each { |file| require file }
+Dir[File.join(__dir__, "support", "**", "*.rb")].each { |file| require file }
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -33,19 +33,19 @@ RSpec.configure do |config|
 
   config.shared_context_metadata_behavior = :apply_to_host_groups
   config.filter_run_when_matching :focus
-  config.example_status_persistence_file_path = 'tmp/examples.txt'
+  config.example_status_persistence_file_path = "tmp/examples.txt"
   config.disable_monkey_patching!
   config.warnings = true
 
-  config.default_formatter = 'doc'
+  config.default_formatter = "doc"
 
   # Exclude e2e tests by default - they're slow and require external dependencies
-  config.filter_run_excluding :e2e unless ENV['RUN_E2E']
+  config.filter_run_excluding :e2e unless ENV["RUN_E2E"]
 
   # E2E examples talk to a real deployment, so lift WebMock's network block for them only
   config.before(:each, :e2e) { WebMock.allow_net_connect! }
   config.after(:each, :e2e) { WebMock.disable_net_connect!(allow_localhost: true) }
 
   config.order = :random
-  Kernel.srand config.seed
+  Kernel.srand(config.seed)
 end

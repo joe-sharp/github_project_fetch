@@ -38,18 +38,18 @@ module HandlerHelper
   end
 
   # Every handler file assigns the top-level Handler constant, so clear it before each load.
-  def run_handler(name, method: 'GET', path: '/api', query: {}, headers: {})
+  def run_handler(name, method: "GET", path: "/api", query: {}, headers: {})
     Object.send(:remove_const, :Handler) if Object.const_defined?(:Handler) # rubocop:disable RSpec/RemoveConst
-    load File.expand_path("../../api/#{name}.rb", __dir__)
+    load(File.expand_path("../../api/#{name}.rb", __dir__))
 
     request = FakeRequest.new(
       {
-        'method' => method,
-        'path' => path,
-        'headers' => headers,
-        'accept' => headers['accept'],
-        'querystring' => URI.encode_www_form(query),
-        'sourceIP' => '203.0.113.7'
+        "method" => method,
+        "path" => path,
+        "headers" => headers,
+        "accept" => headers["accept"],
+        "querystring" => URI.encode_www_form(query),
+        "sourceIP" => "203.0.113.7"
       },
       query
     )

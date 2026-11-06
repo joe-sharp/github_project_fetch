@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'octokit'
-require 'jwt'
-require_relative 'language_fallback'
+require "octokit"
+require "jwt"
+require_relative "language_fallback"
 
 module GithubRepoFetcher
   # GithubClient handles authentication and interaction with the GitHub API
@@ -12,10 +12,10 @@ module GithubRepoFetcher
     attr_reader :client
 
     def initialize
-      @app_id = ENV.fetch('GITHUB_APP_ID', nil)
-      @private_key = ENV.fetch('GITHUB_PRIVATE_KEY', nil)
-      @client_id = ENV.fetch('GITHUB_CLIENT_ID', nil)
-      @client_secret = ENV.fetch('GITHUB_CLIENT_SECRET', nil)
+      @app_id = ENV.fetch("GITHUB_APP_ID", nil)
+      @private_key = ENV.fetch("GITHUB_PRIVATE_KEY", nil)
+      @client_id = ENV.fetch("GITHUB_CLIENT_ID", nil)
+      @client_secret = ENV.fetch("GITHUB_CLIENT_SECRET", nil)
       @cache = {}
       @cache_ttl = 300 # 5 minutes cache
 
@@ -23,7 +23,7 @@ module GithubRepoFetcher
       setup_client
     end
 
-    def fetch_user_projects(username) # rubocop:disable Metrics/MethodLength
+    def fetch_user_projects(username)
       cache_key = "projects_#{username}"
       return @cache[cache_key][:data] if cache_valid?(cache_key)
 
@@ -33,7 +33,7 @@ module GithubRepoFetcher
     rescue Octokit::NotFound
       raise "User '#{username}' not found"
     rescue Octokit::TooManyRequests
-      raise 'GitHub API rate limit exceeded. Please try again later.'
+      raise "GitHub API rate limit exceeded. Please try again later."
     rescue Octokit::Error => e
       raise "GitHub API error: #{e.message}"
     end
@@ -52,7 +52,7 @@ module GithubRepoFetcher
 
       return if missing_vars.empty?
 
-      raise "Missing required environment variables: #{missing_vars.join(', ')}"
+      raise "Missing required environment variables: #{missing_vars.join(", ")}"
     end
 
     def setup_client
@@ -72,14 +72,14 @@ module GithubRepoFetcher
 
     def setup_installation_client
       installations = @client.find_app_installations
-      return log_error('No installations found. Install the app to access projects.') unless installations.any?
+      return log_error("No installations found. Install the app to access projects.") unless installations.any?
 
       setup_client_with_installation(installations.first)
     rescue Octokit::Unauthorized => e
       log_error("Authentication failed during installation setup: #{e.message}")
     rescue Octokit::Error => e
       log_error("Could not set up installation client: #{e.message}")
-    rescue StandardError => e
+    rescue => e
       log_error("Unexpected error during installation setup: #{e.message}")
     end
 
@@ -115,7 +115,7 @@ module GithubRepoFetcher
       private_key = OpenSSL::PKey::RSA.new(private_key_content)
 
       # Generate JWT token
-      JWT.encode(payload, private_key, 'RS256')
+      JWT.encode(payload, private_key, "RS256")
     rescue JWT::EncodeError => e
       raise "Failed to generate JWT token: #{e.message}"
     rescue OpenSSL::PKey::RSAError => e

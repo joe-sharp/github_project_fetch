@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require "spec_helper"
 
 # Simple test class that implements the response interface
 class MockResponse
@@ -25,50 +25,50 @@ class MockRequest
 end
 
 RSpec.describe GithubRepoFetcher::ApiResponseService do
-  describe '.cors_headers' do
-    it 'sets the expected CORS headers', :aggregate_failures do
+  describe ".cors_headers" do
+    it "sets the expected CORS headers", :aggregate_failures do
       response = instance_spy(MockResponse)
       allow(response).to receive(:[]=)
 
       described_class.cors_headers(response)
 
-      expect(response).to have_received(:[]=).with('Access-Control-Allow-Origin', '*')
-      expect(response).to have_received(:[]=).with('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-      expect(response).to have_received(:[]=).with('Access-Control-Allow-Headers', 'Content-Type')
-      expect(response).to have_received(:[]=).with('Content-Type', 'application/json')
+      expect(response).to have_received(:[]=).with("Access-Control-Allow-Origin", "*")
+      expect(response).to have_received(:[]=).with("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+      expect(response).to have_received(:[]=).with("Access-Control-Allow-Headers", "Content-Type")
+      expect(response).to have_received(:[]=).with("Content-Type", "application/json")
     end
   end
 
-  describe '.cors_preflight?' do
-    it 'returns true and sets response for OPTIONS method', :aggregate_failures do
+  describe ".cors_preflight?" do
+    it "returns true and sets response for OPTIONS method", :aggregate_failures do
       request = instance_spy(MockRequest)
       response = instance_spy(MockResponse)
-      allow(request).to receive(:[]).and_return('OPTIONS')
+      allow(request).to receive(:[]).and_return("OPTIONS")
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
       result = described_class.cors_preflight?(request, response)
 
-      expect(result).to be true
+      expect(result).to be(true)
       expect(response).to have_received(:status=).with(200)
-      expect(response).to have_received(:body=).with('')
+      expect(response).to have_received(:body=).with("")
     end
 
-    it 'returns false for non-OPTIONS methods' do
+    it "returns false for non-OPTIONS methods" do
       request = instance_spy(MockRequest)
       response = instance_spy(MockResponse)
-      allow(request).to receive(:[]).and_return('GET')
+      allow(request).to receive(:[]).and_return("GET")
 
       result = described_class.cors_preflight?(request, response)
 
-      expect(result).to be false
+      expect(result).to be(false)
     end
   end
 
-  describe '.success_response' do
-    it 'sets status and body correctly', :aggregate_failures do
+  describe ".success_response" do
+    it "sets status and body correctly", :aggregate_failures do
       response = instance_spy(MockResponse)
-      data = { message: 'Success' }
+      data = { message: "Success" }
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
@@ -78,9 +78,9 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
       expect(response).to have_received(:body=).with(data.to_json)
     end
 
-    it 'accepts custom status code', :aggregate_failures do
+    it "accepts custom status code", :aggregate_failures do
       response = instance_spy(MockResponse)
-      data = { message: 'Created' }
+      data = { message: "Created" }
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
@@ -90,24 +90,24 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
     end
   end
 
-  describe '.cached_html_response' do
-    it 'sets html content type, cache headers and the raw body', :aggregate_failures do
+  describe ".cached_html_response" do
+    it "sets html content type, cache headers and the raw body", :aggregate_failures do
       response = instance_spy(MockResponse)
       allow(response).to receive(:[]=)
 
-      described_class.cached_html_response(response, '<p>hi</p>', 60, 120)
+      described_class.cached_html_response(response, "<p>hi</p>", 60, 120)
 
-      expect(response).to have_received(:[]=).with('Content-Type', 'text/html; charset=utf-8')
-      expect(response).to have_received(:[]=).with('Cache-Control', 's-maxage=60, stale-while-revalidate=120')
+      expect(response).to have_received(:[]=).with("Content-Type", "text/html; charset=utf-8")
+      expect(response).to have_received(:[]=).with("Cache-Control", "s-maxage=60, stale-while-revalidate=120")
       expect(response).to have_received(:status=).with(200)
-      expect(response).to have_received(:body=).with('<p>hi</p>')
+      expect(response).to have_received(:body=).with("<p>hi</p>")
     end
   end
 
-  describe '.error_response' do
-    it 'sets error status and message', :aggregate_failures do
+  describe ".error_response" do
+    it "sets error status and message", :aggregate_failures do
       response = instance_spy(MockResponse)
-      error_message = 'Something went wrong'
+      error_message = "Something went wrong"
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
@@ -117,9 +117,9 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
       expect(response).to have_received(:body=).with({ error: error_message }.to_json)
     end
 
-    it 'accepts custom status code', :aggregate_failures do
+    it "accepts custom status code", :aggregate_failures do
       response = instance_spy(MockResponse)
-      error_message = 'Service unavailable'
+      error_message = "Service unavailable"
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
@@ -129,8 +129,8 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
     end
   end
 
-  describe '.not_found_response' do
-    it 'sets 404 status with default message', :aggregate_failures do
+  describe ".not_found_response" do
+    it "sets 404 status with default message", :aggregate_failures do
       response = instance_spy(MockResponse)
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
@@ -138,12 +138,12 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
       described_class.not_found_response(response)
 
       expect(response).to have_received(:status=).with(404)
-      expect(response).to have_received(:body=).with({ error: 'Endpoint not found' }.to_json)
+      expect(response).to have_received(:body=).with({ error: "Endpoint not found" }.to_json)
     end
 
-    it 'accepts custom error message', :aggregate_failures do
+    it "accepts custom error message", :aggregate_failures do
       response = instance_spy(MockResponse)
-      custom_message = 'Resource not found'
+      custom_message = "Resource not found"
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
@@ -153,10 +153,10 @@ RSpec.describe GithubRepoFetcher::ApiResponseService do
     end
   end
 
-  describe '.bad_request_response' do
-    it 'sets 400 status with error message', :aggregate_failures do
+  describe ".bad_request_response" do
+    it "sets 400 status with error message", :aggregate_failures do
       response = instance_spy(MockResponse)
-      error_message = 'Invalid parameters'
+      error_message = "Invalid parameters"
       allow(response).to receive(:status=)
       allow(response).to receive(:body=)
 
