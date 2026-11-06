@@ -163,7 +163,8 @@ MOCK_KEY_FOR_TESTING
         expect(project).to include(fork: true, parent_full_name: "upstream/test-repo")
       end
 
-      it "returns a nil parent without failing the fetch when the parent lookup errors" do
+      # rubocop:disable-next RSpec/ExampleLength
+      it "returns a nil parent without failing the fetch when the parent lookup errors", :aggregate_failures do
         stub_repositories_request(fork: true)
         stub_languages_request
         stub_repo_error
