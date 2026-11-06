@@ -20,8 +20,8 @@ module GithubRepoFetcher
         },
         parameters: {
           username: "Required for /api/projects. A GitHub username (max 39 characters).",
-          include_fork_metadata: "Optional for /api/projects. Set to true to add fork and parent_full_name " \
-                                 "to each project."
+          include_fork_metadata: "Optional for /api/projects. Set to true to add fork, parent_full_name, " \
+                                 "pull_requests and pull_requests_total to each project."
         },
         examples: {
           health: "/api/health",
@@ -278,7 +278,7 @@ module GithubRepoFetcher
 
         <h2>Good to know</h2>
         <table>
-          <tr><td>Fork metadata</td><td>Add <code>&amp;include_fork_metadata=true</code> to get <code>fork</code> and <code>parent_full_name</code> for each project. Forks cost one extra GitHub lookup each.</td></tr>
+          <tr><td>Fork metadata</td><td>Add <code>&amp;include_fork_metadata=true</code> to get <code>fork</code>, <code>parent_full_name</code>, <code>pull_requests</code> and <code>pull_requests_total</code> for each project. Forks cost one extra GitHub lookup plus one search each.</td></tr>
           <tr><td>Rate limit</td><td>60 requests per 5 minutes per IP.</td></tr>
           <tr><td>Caching</td><td>Projects 10 min, health 10 sec, this page 1 hour (stale-while-revalidate).</td></tr>
           <tr><td>Languages</td><td>From GitHub's languages API. Repos with none (YAML, JSON, Markdown only) fall back to file-extension counts.</td></tr>

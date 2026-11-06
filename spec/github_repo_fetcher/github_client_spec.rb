@@ -154,24 +154,85 @@ MOCK_KEY_FOR_TESTING
         expect(a_request(:get, "https://api.github.com/repos/testuser/test-repo")).not_to have_been_made
       end
 
-      it "returns the parent full_name for a fork" do
-        stub_repositories_request(fork: true)
-        stub_languages_request
-        stub_repo_request(parent_full_name: "upstream/test-repo")
+      context "with a fork" do
+        before do
+          stub_repositories_request(fork: true)
+          stub_languages_request
+        end
 
-        project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
-        expect(project).to include(fork: true, parent_full_name: "upstream/test-repo")
+        let(:pull_request_items) do
+          [
+            pull_request_item(number: 1, title: "Merged fix", merged: true),
+            pull_request_item(number: 2, title: "Open idea"),
+            pull_request_item(number: 3, title: "Dropped", state: "closed")
+          ]
+        end
+
+        let(:expected_pull_requests) do
+          [
+            { title: "Merged fix", html_url: "https://github.com/upstream/test-repo/pull/1", state: "merged" },
+            { title: "Open idea", html_url: "https://github.com/upstream/test-repo/pull/2", state: "open" },
+            { title: "Dropped", html_url: "https://github.com/upstream/test-repo/pull/3", state: "closed" }
+          ]
+        end
+
+        it "returns the parent full_name for a fork" do
+          stub_repo_request(parent_full_name: "upstream/test-repo")
+          stub_pull_request_search([])
+
+          project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
+          expect(project).to include(fork: true, parent_full_name: "upstream/test-repo")
+        end
+
+        it "returns a nil parent without failing the fetch when the parent lookup errors", :aggregate_failures do
+          stub_repo_error
+
+          projects = client.fetch_user_projects("testuser", include_fork_metadata: true)
+          expect(projects.size).to eq(1)
+          expect(projects.first).to include(fork: true, parent_full_name: nil)
+        end
+
+        it "lists the user's pull requests into the parent with their state" do
+          stub_repo_request(parent_full_name: "upstream/test-repo")
+          stub_pull_request_search(pull_request_items, total_count: 4)
+
+          project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
+          expect(project[:pull_requests]).to eq(expected_pull_requests)
+        end
+
+        it "reports the total number of the user's pull requests" do
+          stub_repo_request(parent_full_name: "upstream/test-repo")
+          stub_pull_request_search(pull_request_items, total_count: 4)
+
+          project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
+          expect(project[:pull_requests_total]).to eq(4)
+        end
+
+        it "searches the parent repo for the user's pull requests" do
+          stub_repo_request(parent_full_name: "upstream/test-repo")
+          stub_pull_request_search(pull_request_items, total_count: 4)
+
+          client.fetch_user_projects("testuser", include_fork_metadata: true)
+          expect(a_request(:get, "https://api.github.com/search/issues")
+            .with(query: hash_including("q" => "repo:upstream/test-repo is:pr author:testuser"))).to have_been_made
+        end
+
+        it "leaves out pull request data when the search errors, keeping the fork fields", :aggregate_failures do
+          stub_repo_request(parent_full_name: "upstream/test-repo")
+          stub_request(:get, %r{https://api\.github\.com/search/issues}).to_return(status: 500)
+
+          project = client.fetch_user_projects("testuser", include_fork_metadata: true).first
+          expect(project).to include(fork: true, parent_full_name: "upstream/test-repo")
+          expect(project).not_to include(:pull_requests, :pull_requests_total)
+        end
       end
 
-      # rubocop:disable-next RSpec/ExampleLength
-      it "returns a nil parent without failing the fetch when the parent lookup errors", :aggregate_failures do
-        stub_repositories_request(fork: true)
+      it "makes no pull request search for a non-fork" do
+        stub_repositories_request
         stub_languages_request
-        stub_repo_error
 
-        projects = client.fetch_user_projects("testuser", include_fork_metadata: true)
-        expect(projects.size).to eq(1)
-        expect(projects.first).to include(fork: true, parent_full_name: nil)
+        client.fetch_user_projects("testuser", include_fork_metadata: true)
+        expect(a_request(:get, %r{/search/issues})).not_to have_been_made
       end
     end
 
@@ -351,6 +412,24 @@ MOCK_KEY_FOR_TESTING
   def stub_repo_error
     stub_request(:get, "https://api.github.com/repos/testuser/test-repo")
       .to_return(status: 500)
+  end
+
+  def stub_pull_request_search(items, total_count: items.size)
+    stub_request(:get, %r{https://api\.github\.com/search/issues})
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: { total_count: total_count, incomplete_results: false, items: items }.to_json
+      )
+  end
+
+  def pull_request_item(number:, title:, merged: false, state: "open")
+    {
+      title: title,
+      html_url: "https://github.com/upstream/test-repo/pull/#{number}",
+      state: state,
+      pull_request: { merged_at: merged ? "2026-01-02T00:00:00Z" : nil }
+    }
   end
 
   def stub_user_not_found
