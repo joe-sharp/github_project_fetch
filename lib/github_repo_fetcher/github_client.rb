@@ -181,8 +181,12 @@ module GithubRepoFetcher
       cache_key = "pull_requests_#{parent_name}_#{username}"
       return @cache[cache_key][:data] if cache_valid?(cache_key)
 
-      results = client.search_issues("repo:#{parent_name} is:pr author:#{username}",
-                                     per_page: 100, sort: "created", order: "desc")
+      results = client.search_issues(
+        "repo:#{parent_name} is:pr author:#{username}",
+        per_page: 100,
+        sort: "created",
+        order: "desc"
+      )
       data = {
         pull_requests: results.items.map { |item| pull_request_summary(item) },
         pull_requests_total: results.total_count
