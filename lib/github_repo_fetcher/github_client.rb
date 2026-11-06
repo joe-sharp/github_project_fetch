@@ -147,28 +147,55 @@ module GithubRepoFetcher
 
     def fetch_and_transform_projects(username, include_fork_metadata)
       client.repos(username, per_page: 100).map do |repo|
-        transform_project_data(repo, include_fork_metadata)
+        transform_project_data(repo, username, include_fork_metadata)
       end
     end
 
-    def transform_project_data(repo, include_fork_metadata)
+    def transform_project_data(repo, username, include_fork_metadata)
       {
         name: repo.name,
         description: repo.description,
         languages: fetch_repository_languages(repo.full_name, repo.default_branch),
         forks_count: repo.forks_count,
         stargazers_count: repo.stargazers_count,
-        **fork_metadata(repo, include_fork_metadata),
+        **fork_metadata(repo, username, include_fork_metadata),
         html_url: repo.html_url,
         created_at: repo.created_at,
         updated_at: repo.updated_at
       }
     end
 
-    def fork_metadata(repo, include_fork_metadata)
+    def fork_metadata(repo, username, include_fork_metadata)
       return {} unless include_fork_metadata
 
-      { fork: repo.fork, parent_full_name: fork_parent_full_name(repo) }
+      parent_name = fork_parent_full_name(repo)
+      metadata = { fork: repo.fork, parent_full_name: parent_name }
+      return metadata unless parent_name
+
+      metadata.merge(fork_pull_requests(parent_name, username) || {})
+    end
+
+    # The user's pull requests into the parent repo, newest first. Returns nil
+    # when the search fails, so the fetch still succeeds without PR data.
+    def fork_pull_requests(parent_name, username)
+      cache_key = "pull_requests_#{parent_name}_#{username}"
+      return @cache[cache_key][:data] if cache_valid?(cache_key)
+
+      results = client.search_issues("repo:#{parent_name} is:pr author:#{username}",
+                                     per_page: 100, sort: "created", order: "desc")
+      data = {
+        pull_requests: results.items.map { |item| pull_request_summary(item) },
+        pull_requests_total: results.total_count
+      }
+      @cache[cache_key] = { data: data, timestamp: Time.now }
+      data
+    rescue Octokit::Error
+      nil
+    end
+
+    def pull_request_summary(item)
+      state = item.pull_request&.merged_at ? "merged" : item.state
+      { title: item.title, html_url: item.html_url, state: state }
     end
 
     # The list endpoint omits `parent`, so a fork needs its own repo lookup.
