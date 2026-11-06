@@ -4,49 +4,49 @@ module GithubRepoFetcher
   # UsageService describes how to use the API: a JSON document for programmatic
   # clients (curl, fetch) and a styled single-page HTML guide for browsers.
   class UsageService
-    NAME = 'GitHub Project Fetcher'
-    VERSION = '1.0.0'
+    NAME = "GitHub Project Fetcher"
+    VERSION = "1.0.0"
 
     def self.json
       {
         name: NAME,
         version: VERSION,
-        description: 'API to fetch public repositories and their language data for a given GitHub user. ' \
-                     '(Unrelated to GitHub Projects)',
+        description: "API to fetch public repositories and their language data for a given GitHub user. " \
+                     "(Unrelated to GitHub Projects)",
         endpoints: {
-          usage: '/api',
-          health: '/api/health',
-          projects: '/api/projects?username={github_username}'
+          usage: "/api",
+          health: "/api/health",
+          projects: "/api/projects?username={github_username}"
         },
         parameters: {
-          username: 'Required for /api/projects. A GitHub username (max 39 characters).'
+          username: "Required for /api/projects. A GitHub username (max 39 characters)."
         },
         examples: {
-          health: '/api/health',
-          projects: '/api/projects?username=octocat'
+          health: "/api/health",
+          projects: "/api/projects?username=octocat"
         },
         limits: {
-          rate_limit: '60 requests per 5 minutes per IP',
-          caching: { projects: '10 minutes', health: '10 seconds', usage: '1 hour' }
+          rate_limit: "60 requests per 5 minutes per IP",
+          caching: { projects: "10 minutes", health: "10 seconds", usage: "1 hour" }
         },
         errors: {
-          '400' => 'Missing or invalid username, or rate limit exceeded',
-          '404' => 'Unknown endpoint',
-          '500' => 'GitHub API error (user not found, GitHub rate limit, ...)',
-          '503' => 'Health check failed'
+          "400" => "Missing or invalid username, or rate limit exceeded",
+          "404" => "Unknown endpoint",
+          "500" => "GitHub API error (user not found, GitHub rate limit, ...)",
+          "503" => "Health check failed"
         },
-        documentation: 'https://github.com/joe-sharp/github_project_fetch#-api-endpoints'
+        documentation: "https://github.com/joe-sharp/github_project_fetch#-api-endpoints"
       }
     end
 
     # Browsers send text/html in Accept; curl and fetch default to */* and get JSON.
     def self.html_requested?(request)
       query = request.respond_to?(:query) ? request.query : nil
-      format = query.is_a?(Hash) ? query['format'] : nil
-      return format == 'html' if format
+      format = query.is_a?(Hash) ? query["format"] : nil
+      return format == "html" if format
 
-      accept = request['accept'] || request['headers']&.dig('accept')
-      accept.to_s.include?('text/html')
+      accept = request["accept"] || request["headers"]&.dig("accept")
+      accept.to_s.include?("text/html")
     end
 
     def self.html

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'github_client'
+require_relative "github_client"
 
 module GithubRepoFetcher
   # HealthService handles business logic for health checks
@@ -12,7 +12,7 @@ module GithubRepoFetcher
     def check_health
       rate_limit_info = @github_client.rate_limit
       healthy_response(rate_limit_info)
-    rescue StandardError => e
+    rescue => e
       unhealthy_response(e)
     end
 
@@ -20,15 +20,15 @@ module GithubRepoFetcher
 
     def healthy_response(rate_limit_info)
       base_response.merge(
-        status: 'healthy',
-        message: 'GitHub API connection successful',
+        status: "healthy",
+        message: "GitHub API connection successful",
         rate_limit: build_rate_limit_data(rate_limit_info)
       )
     end
 
     def unhealthy_response(error)
       base_response.merge(
-        status: 'unhealthy',
+        status: "unhealthy",
         error: error.message
       )
     end
@@ -53,8 +53,8 @@ module GithubRepoFetcher
     def base_response
       {
         timestamp: Time.now.utc.iso8601,
-        service: 'GitHub Repository Fetcher',
-        version: '1.0.0'
+        service: "GitHub Repository Fetcher",
+        version: "1.0.0"
       }
     end
   end

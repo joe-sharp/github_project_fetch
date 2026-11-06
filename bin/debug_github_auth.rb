@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'bundler/setup'
-require_relative '../lib/github_repo_fetcher'
+require "bundler/setup"
+require_relative "../lib/github_repo_fetcher"
 
-puts '🔍 GitHub App Authentication Debug'
-puts '=================================='
+puts "\u{1F50D} GitHub App Authentication Debug"
+puts "=================================="
 
 # Check environment variables
 puts "\n1. Environment Variables Check:"
@@ -14,11 +14,11 @@ env_vars.each do |var|
   value = ENV.fetch(var, nil)
   if value.nil? || value.empty?
     puts "   ❌ #{var}: NOT SET"
-  elsif var == 'GITHUB_PRIVATE_KEY'
-    if value.include?('-----BEGIN RSA PRIVATE KEY-----')
+  elsif var == "GITHUB_PRIVATE_KEY"
+    if value.include?("-----BEGIN RSA PRIVATE KEY-----")
       puts "   ✅ #{var}: SET (appears to be valid PEM format)"
       puts "      Length: #{value.length} characters"
-      puts "      Contains BEGIN/END markers: #{value.include?('-----END RSA PRIVATE KEY-----')}"
+      puts "      Contains BEGIN/END markers: #{value.include?("-----END RSA PRIVATE KEY-----")}"
     else
       puts "   ⚠️  #{var}: SET but doesn't look like PEM format"
       puts "      Value: #{value[0..50]}..."
@@ -32,14 +32,14 @@ end
 puts "\n2. GitHub Client Initialization Test:"
 begin
   client = GithubRepoFetcher::GithubClient.new
-  puts '   ✅ GithubClient initialized successfully'
+  puts "   \u2705 GithubClient initialized successfully"
 
   # Test health check to verify API connection
   health = client.health_check
   puts "   ✅ Health check successful: #{health[:status]}"
   puts "      Rate limit: #{health[:rate_limit][:remaining]}/#{health[:rate_limit][:limit]}"
   puts "      Reset time: #{health[:rate_limit][:reset_time]}"
-rescue StandardError => e
+rescue => e
   puts "   ❌ Error: #{e.message}"
   puts "   Backtrace: #{e.backtrace.first(3).join("\n      ")}"
 end
@@ -48,29 +48,29 @@ end
 puts "\n3. Repository Access Test:"
 begin
   if defined?(client) && client
-    puts '   Testing repository access...'
+    puts "   Testing repository access..."
     # Try to fetch a public repository to test access
-    test_username = 'octocat' # GitHub's test user
+    test_username = "octocat" # GitHub's test user
     projects = client.fetch_user_projects(test_username)
-    puts '   ✅ Project access successful'
+    puts "   \u2705 Project access successful"
     puts "      Found #{projects.length} projects for #{test_username}"
     puts "      Sample project: #{projects.first[:name]}" if projects.any?
   else
-    puts '   ❌ Cannot test repository access - client initialization failed'
+    puts "   \u274C Cannot test repository access - client initialization failed"
   end
-rescue StandardError => e
+rescue => e
   puts "   ❌ Repository access failed: #{e.message}"
-  if e.message.include?('401')
-    puts '   💡 This suggests authentication issues'
-  elsif e.message.include?('403')
+  if e.message.include?("401")
+    puts "   \u{1F4A1} This suggests authentication issues"
+  elsif e.message.include?("403")
     puts "   💡 This suggests the App doesn't have repository access permissions"
-  elsif e.message.include?('404')
-    puts '   💡 This suggests the test user was not found (unlikely)'
+  elsif e.message.include?("404")
+    puts "   \u{1F4A1} This suggests the test user was not found (unlikely)"
   end
 end
 
 puts "\n🔧 Troubleshooting Tips:"
-puts '1. Make sure your private key includes the full PEM format with BEGIN/END markers'
+puts "1. Make sure your private key includes the full PEM format with BEGIN/END markers"
 puts "2. Verify your App ID matches what's shown in your GitHub App settings"
 puts "3. Check that your GitHub App has 'Read repository data' permissions"
 puts "4. Ensure your private key hasn't expired or been regenerated"

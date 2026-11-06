@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'json'
-require_relative '../lib/github_repo_fetcher/project_service'
-require_relative '../lib/github_repo_fetcher/api_response_service'
-require_relative '../lib/github_repo_fetcher/security_service'
+require "json"
+require_relative "../lib/github_repo_fetcher/project_service"
+require_relative "../lib/github_repo_fetcher/api_response_service"
+require_relative "../lib/github_repo_fetcher/security_service"
 
 # Vercel projects endpoint
 Handler = proc do |request, response|
@@ -15,7 +15,7 @@ Handler = proc do |request, response|
   begin
     # Get username from query parameters
     query_params = request.query || {}
-    username = query_params['username']
+    username = query_params["username"]
 
     # Validate request and enforce security policies
     GithubRepoFetcher::SecurityService.validate_request(request, username)
@@ -33,7 +33,7 @@ Handler = proc do |request, response|
     )
   rescue ArgumentError => e
     GithubRepoFetcher::ApiResponseService.bad_request_response(response, e.message)
-  rescue StandardError => e
+  rescue => e
     GithubRepoFetcher::ApiResponseService.error_response(response, e.message)
   end
 end

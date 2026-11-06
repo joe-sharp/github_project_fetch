@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'github_client'
+require_relative "github_client"
 
 module GithubRepoFetcher
   # ProjectService handles business logic for fetching and processing user projects
@@ -29,7 +29,7 @@ module GithubRepoFetcher
       # Remove any non-alphanumeric characters except hyphens and underscores
       # Convert to lowercase
       # Limit length to 39 characters (GitHub username limit)
-      sanitized = username.downcase.gsub(/[^a-z0-9_-]/, '')
+      sanitized = username.downcase.gsub(/[^a-z0-9_-]/, "")
       sanitized[0, 39] # Limit to 39 characters
     end
   end
