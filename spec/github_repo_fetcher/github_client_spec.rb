@@ -135,6 +135,36 @@ MOCK_KEY_FOR_TESTING
       end
     end
 
+    context "with fork metadata" do
+      it "marks a non-fork with no parent and makes no parent lookup", :aggregate_failures do
+        stub_repositories_request
+        stub_languages_request
+
+        project = client.fetch_user_projects("testuser").first
+        expect(project).to include(fork: false, parent_full_name: nil)
+        expect(a_request(:get, "https://api.github.com/repos/testuser/test-repo")).not_to have_been_made
+      end
+
+      it "returns the parent full_name for a fork" do
+        stub_repositories_request(fork: true)
+        stub_languages_request
+        stub_repo_request(parent_full_name: "upstream/test-repo")
+
+        project = client.fetch_user_projects("testuser").first
+        expect(project).to include(fork: true, parent_full_name: "upstream/test-repo")
+      end
+
+      it "returns a nil parent without failing the fetch when the parent lookup errors" do
+        stub_repositories_request(fork: true)
+        stub_languages_request
+        stub_repo_error
+
+        projects = client.fetch_user_projects("testuser")
+        expect(projects.size).to eq(1)
+        expect(projects.first).to include(fork: true, parent_full_name: nil)
+      end
+    end
+
     context "when user is not found" do
       before do
         stub_user_not_found
@@ -240,7 +270,7 @@ MOCK_KEY_FOR_TESTING
       .to_return(status: 500)
   end
 
-  def stub_repositories_request
+  def stub_repositories_request(fork: false)
     stub_request(:get, "https://api.github.com/users/testuser/repos?per_page=100")
       .with(
         headers: {
@@ -260,6 +290,7 @@ MOCK_KEY_FOR_TESTING
             default_branch: "main",
             forks_count: 5,
             stargazers_count: 10,
+            fork: fork,
             html_url: "https://github.com/testuser/test-repo",
             created_at: "2023-01-01T00:00:00Z",
             updated_at: "2023-12-01T00:00:00Z"
@@ -291,6 +322,25 @@ MOCK_KEY_FOR_TESTING
         headers: { "Content-Type" => "application/json" },
         body: body.to_json
       )
+  end
+
+  def stub_repo_request(parent_full_name:)
+    stub_request(:get, "https://api.github.com/repos/testuser/test-repo")
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: {
+          name: "test-repo",
+          full_name: "testuser/test-repo",
+          fork: true,
+          parent: { full_name: parent_full_name }
+        }.to_json
+      )
+  end
+
+  def stub_repo_error
+    stub_request(:get, "https://api.github.com/repos/testuser/test-repo")
+      .to_return(status: 500)
   end
 
   def stub_user_not_found

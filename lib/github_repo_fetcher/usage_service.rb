@@ -268,6 +268,8 @@ module GithubRepoFetcher
           "languages": { "Ruby": 204865, "Shell": 910 },
           "forks_count": 219,
           "stargazers_count": 576,
+          "fork": false,
+          "parent_full_name": null,
           "html_url": "https://github.com/octocat/linguist",
           "created_at": "2016-08-02 17:35:14 UTC",
           "updated_at": "2025-08-03 07:36:00 UTC"

@@ -158,10 +158,27 @@ module GithubRepoFetcher
         languages: fetch_repository_languages(repo.full_name, repo.default_branch),
         forks_count: repo.forks_count,
         stargazers_count: repo.stargazers_count,
+        fork: repo.fork,
+        parent_full_name: fork_parent_full_name(repo),
         html_url: repo.html_url,
         created_at: repo.created_at,
         updated_at: repo.updated_at
       }
+    end
+
+    # The list endpoint omits `parent`, so a fork needs its own repo lookup.
+    # Returns nil for non-forks and when the lookup fails.
+    def fork_parent_full_name(repo)
+      return nil unless repo.fork
+
+      cache_key = "parent_#{repo.full_name}"
+      return @cache[cache_key][:data] if cache_valid?(cache_key)
+
+      parent_name = client.repo(repo.full_name).parent&.full_name
+      @cache[cache_key] = { data: parent_name, timestamp: Time.now }
+      parent_name
+    rescue Octokit::Error
+      nil
     end
 
     def cache_projects(cache_key, projects)
